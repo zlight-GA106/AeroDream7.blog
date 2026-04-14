@@ -36,14 +36,26 @@ const runDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
             用户标识
           </div>
         </div>
+        
         <div class="window-body" style="padding: 15px; text-align: center;">
+          
           <div style="width: 80px; height: 80px; margin: 0 auto 10px auto; border: 2px solid rgba(255,255,255,0.8); border-radius: 8px; background: linear-gradient(135deg, #e0f7fa, #80deea); box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center;">
             <img src="/icon/054.png" style="width: 48px;">
           </div>
           <h3 style="margin: 5px 0; color: #003366; font-family: 'Segoe UI', Tahoma;">zlight106</h3>
-          <p style="font-size: 11px; color: #555; margin: 5px 0; border-top: 1px dashed #ccc; padding-top: 8px;">
+          <p style="font-size: 11px; color: #555; margin: 5px 0 15px 0; border-top: 1px dashed #ccc; padding-top: 8px;">
             物联网应用 / 硬件 DIY / 赛博拾荒者
           </p>
+          
+          <div style="display: flex; gap: 8px; justify-content: center;">
+            <a href="https://github.com/zlight106" target="_blank" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">
+              <img src="/icon/086.png" style="width: 12px; vertical-align: middle; margin-right: 3px;"> 源代码
+            </a>
+            <a href="/rss.xml" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">
+              <img src="/icon/071.png" style="width: 12px; vertical-align: middle; margin-right: 3px;"> RSS 订阅
+            </a>
+          </div>
+
         </div>
       </div>
 
@@ -113,28 +125,123 @@ const runDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
   </div>
 </body>
 </div>
-  <script>
-    // Astro 页面加载完毕后执行
+<script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 找到页面上所有的“最大化”和“关闭”按钮
+
+      // ================= 1. 布局模式切换逻辑 (手机/桌面) =================
       const mobileBtns = document.querySelectorAll('.btn-mobile-view');
       const desktopBtns = document.querySelectorAll('.btn-desktop-view');
 
-      // 为所有的“最大化(口)”按钮绑定：开启手机视图
       mobileBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-          document.body.classList.add('force-mobile');
+          document.body.classList.add('mode-mobile');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       });
 
-      // 为所有的“关闭(X)”按钮绑定：恢复电脑视图
       desktopBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-          document.body.classList.remove('force-mobile');
+          document.body.classList.remove('mode-mobile');
         });
       });
+
+      // ================= 2. 代码块一键复制逻辑 =================
+      const codeBlocks = document.querySelectorAll('pre');
+
+      codeBlocks.forEach((block) => {
+        // 创建一个“绝对静止”的外部包裹框 (Wrapper)
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        
+        // 将原本的代码块用这个外框包起来
+        block.parentNode.insertBefore(wrapper, block);
+        wrapper.appendChild(block);
+
+        // 动态生成按钮
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-code-btn';
+        copyButton.textContent = '复制'; // 纯文字，拒绝 Emoji
+
+        // 绑定点击事件
+        copyButton.addEventListener('click', async () => {
+          const codeText = block.querySelector('code')?.innerText || block.innerText;
+
+          try {
+            await navigator.clipboard.writeText(codeText);
+            
+            // 视觉反馈只改变文字
+            copyButton.textContent = '已复制';
+
+            // 2 秒后恢复原状
+            setTimeout(() => {
+              copyButton.textContent = '复制';
+            }, 2000);
+          } catch (err) {
+            console.error('复制失败!', err);
+            copyButton.textContent = '失败';
+          }
+        });
+
+        // 把按钮挂载到“静止的外框(wrapper)”上
+        wrapper.appendChild(copyButton);
+      });
+
+      // ================= 3. 新增：图片单击放大逻辑 (Aero Glass 风格) =================
+      const articleImages = document.querySelectorAll('.article-body img');
+
+      articleImages.forEach((img) => {
+        img.addEventListener('click', () => {
+          // 1. 创建模态框元素
+          const modal = document.createElement('div');
+          modal.className = 'zoomed-image-modal';
+
+          // 2. 创建放大后的图片元素，并设置原图片的 src
+          const zoomedImg = document.createElement('img');
+          zoomedImg.src = img.src;
+          if (img.alt) zoomedImg.alt = img.alt;
+
+          // 3. 将图片放入模态框
+          modal.appendChild(zoomedImg);
+
+          // 4. 将模态框添加到页面 body 末尾
+          document.body.appendChild(modal);
+
+          // 5. 灵魂修复：禁止页面滚动，聚焦放大图片
+          document.body.style.overflow = 'hidden';
+
+          // 6. Aero 魔法：平滑淡入
+          requestAnimationFrame(() => {
+            modal.classList.add('show');
+          });
+
+          // 7. 绑定关闭事件：点击模态框任何位置
+          modal.addEventListener('click', () => {
+            // 平滑淡出
+            modal.classList.remove('show');
+            // 动画完成后从页面中彻底移除模态框元素
+            modal.addEventListener('transitionend', () => {
+                modal.remove();
+                // 恢复页面滚动
+                document.body.style.overflow = '';
+            }, { once: true });
+          });
+
+          // 8. 绑定 Esc 键关闭事件
+          const handleEsc = (event) => {
+            if (event.key === 'Escape') {
+              modal.click(); // 模拟点击模态框关闭
+              window.removeEventListener('keydown', handleEsc); // 移除监听器
+            }
+          };
+          window.addEventListener('keydown', handleEsc);
+
+        });
+      });
+
     });
   </script>
+</body>
+</html>
 </body>
 </html>
 </html>

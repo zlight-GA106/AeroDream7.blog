@@ -52,13 +52,51 @@ body {
 
 /* ================= Markdown 内容样式修正 ================= */
 .article-body h1, .article-body h2, .article-body h3 { 
-  color: #1e5799; border-bottom: 1px dashed #ccc; padding-bottom: 5px; 
+  color: #1e5799; 
+  border-bottom: 1px dashed #ccc; 
+  padding-bottom: 5px; 
 }
+
+/* 【修复 1：驯服图片】限制最大宽度，顺便加个照片投影效果 */
+.article-body img {
+  max-width: 100%; /* 绝对不允许超过父容器宽度 */
+  height: auto;    /* 保持等比缩放，不变形 */
+  display: block;
+  margin: 15px auto; /* 自动居中 */
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(0, 50, 150, 0.15); /* 淡淡的 Aero 蓝阴影 */
+}
+
+/* 【优化 2：质感代码块】模拟 Windows 里的文本输入框凹陷感 */
+/* 必须给 pre 加上相对定位，这样复制按钮才能绝对定位在右上角 */
+/* 修改前的 pre 样式 */
 .article-body pre { 
-  background: rgba(255,255,255,0.8); border: 1px solid #ccc; padding: 10px; border-radius: 4px; overflow-x: auto; 
+  position: relative; 
+  background: rgba(255, 255, 255, 0.85) !important; 
+  border: 1px solid #aebac8 !important; 
+  
+  /* 【修改】：改回均匀的 15px，不要在这里留空间了 */
+  padding: 15px !important; 
+  box-sizing: border-box; /* 确保 padding 不会撑爆外框 */
+  
+  border-radius: 4px; 
+  overflow-x: auto; 
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05); 
 }
+/* 改造行内小代码块 (去边框，加一点极淡的底色) */
 .article-body code { 
-  font-family: 'Courier New', Courier, monospace; background: rgba(255,255,255,0.8); padding: 2px 4px; border: 1px solid #ddd; border-radius: 3px; 
+  font-family: 'Courier New', Courier, monospace; 
+  background: rgba(0, 0, 0, 0.05); /* 去掉白色底，换成极其透明的灰 */
+  padding: 2px 6px; 
+  border-radius: 4px; 
+  color: #1e5799; 
+  /* 删掉了原来的 border: 1px solid #ccc; */
+}
+.article-body pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
 }
 
 /* ================= 响应式与缩放 ================= */
@@ -79,4 +117,228 @@ body.force-mobile #aero-workspace {
 body.force-mobile .glass-panel {
   /* 手机模式下可以稍微减弱一点厚重的阴影，更加清爽 */
   box-shadow: 0 4px 15px rgba(0, 50, 150, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ================= 魔法：纯净 Win7 质感复制按钮 ================= */
+.copy-code-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #333;
+  /* 经典的 Windows 按钮渐变色 */
+  background: linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 100%);
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1), inset 0 1px 0 #fff;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  transition: all 0.2s;
+  opacity: 0.6; /* 默认半透明，避免喧宾夺主 */
+}
+
+.copy-code-btn:hover {
+  opacity: 1; /* 鼠标放上去时完全显形，并泛出 Aero 蓝光 */
+  background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 100%);
+  border-color: #7eb4ea;
+}
+
+.copy-code-btn:active {
+  background: #c4e5f6;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); /* 按下时的凹陷反馈 */
+}
+
+
+
+/* ================= 魔法：纯净代码行号与对齐 (最终完美版) ================= */
+.article-body pre code {
+  counter-reset: line;
+  line-height: 1.5em !important; 
+  
+  /* 【核心修复】：必须用 inline-block 才能让浏览器在滚动时乖乖算上右侧的 padding */
+  display: inline-block; 
+  min-width: 100%;
+  padding-right: 80px !important; /* 给右上角的复制按钮留出 80px 的绝对结界 */
+  box-sizing: border-box;
+
+  white-space: pre !important; /* 强制不换行，撑开宽度 */
+  word-wrap: normal !important;
+  word-break: normal !important;
+}
+
+.article-body pre code .line {
+  min-height: 1.5em;
+  line-height: 1.5em;
+  display: block;
+  white-space: pre !important; /* 确保单行内容也绝对不换行 */
+}
+
+.article-body pre code .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.5rem;          
+  margin-right: 15px;     
+  padding-right: 10px;
+  text-align: right;
+  color: #999;            
+  border-right: 1px solid #c0d0e0; 
+  user-select: none;
+  vertical-align: top; /* 确保行号和代码顶部严格对齐 */
+}
+
+/* ================= 魔法：复刻 Win7 原生滚动条 (针对代码块) ================= */
+
+/* 定义滚动条的整体厚度 */
+.article-body pre::-webkit-scrollbar {
+  height: 16px; /* Win7 标准横向滚动条高度 */
+  width: 16px;
+}
+
+/* 滚动条的轨道 (底部凹陷的灰色槽) */
+.article-body pre::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-top: 1px solid #ccc; /* 轨道上边缘阴影 */
+  border-radius: 0 0 4px 4px; /* 贴合外框的圆角 */
+}
+
+/* 滚动条的滑块 (那个可以拖动的方块) */
+.article-body pre::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #fcfcfc 0%, #e0e0e0 100%);
+  border: 1px solid #999;
+  border-radius: 4px;
+  /* 模拟高光和立体感 */
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.9), inset -1px -1px 0px rgba(0, 0, 0, 0.05);
+}
+
+/* 鼠标悬停在滑块上：经典的 Aero 蓝发光 */
+.article-body pre::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 100%);
+  border-color: #7eb4ea;
+}
+
+/* 鼠标按下拖动时：更深的蓝色凹陷 */
+.article-body pre::-webkit-scrollbar-thumb:active {
+  background: #c4e5f6;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 隐藏滚动条两端的丑陋箭头按钮 (保持简洁) */
+.article-body pre::-webkit-scrollbar-button {
+  display: none; 
+}
+
+/* ================= 布局模式切换魔法 ================= */
+
+/* 当 body 拥有 .mode-mobile 类时 */
+body.mode-mobile #aero-workspace {
+  /* 将整个工作区收缩，模拟手机宽度 */
+  max-width: 600px !important; 
+  padding: 10px !important;
+  /* 并将其居中 */
+  margin: 0 auto !important;
+}
+
+/* 隐藏左右侧边栏 */
+body.mode-mobile .sidebar-left,
+body.mode-mobile .sidebar-right {
+  display: none !important;
+}
+
+/* 确保中间文档区占据全宽 */
+body.mode-mobile .main-content {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ================= 魔法：强制修复窗口控件高亮 (Aero Glass 级) ================= */
+
+/* 1. 给最大化（手机模式）按钮加上经典的 Aero 蓝宝石悬停发光 */
+.title-bar-controls button.btn-mobile-view {
+  transition: all 0.15s ease-in-out;
+}
+.title-bar-controls button.btn-mobile-view:hover {
+  background-color: rgba(80, 170, 240, 0.6) !important; 
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.8), 0 0 4px rgba(80, 170, 240, 0.5) !important;
+}
+.title-bar-controls button.btn-mobile-view:active {
+  background-color: rgba(40, 130, 210, 0.8) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 2. 给关闭（桌面模式）按钮加上经典的 Aero 红宝石悬停发光 */
+.title-bar-controls button.btn-desktop-view {
+  transition: all 0.15s ease-in-out;
+}
+.title-bar-controls button.btn-desktop-view:hover {
+  background-color: rgba(220, 50, 50, 0.85) !important; 
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.6), 0 0 4px rgba(220, 50, 50, 0.5) !important;
+}
+.title-bar-controls button.btn-desktop-view:active {
+  background-color: rgba(180, 20, 20, 0.95) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ================= 魔法：图片单击放大 (Aero Glass 风格模态框) ================= */
+
+/* 1. 针对博客文章内的图片，设置基础样式和交互提示 */
+.article-body img {
+  cursor: pointer; /* 鼠标悬停时显示小手，提示可点击 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* 平滑过渡效果 */
+}
+
+/* 2. 鼠标悬停时的微妙 Aero 缩放和发光效果 */
+.article-body img:hover {
+  transform: scale(1.01); /* 极其微小的放大，更具动感 */
+  box-shadow: 0 4px 15px rgba(80, 170, 240, 0.3) !important; /* 淡淡的 Aero 蓝光晕 */
+}
+
+/* 3. 放大后的模态框（遮罩层）样式 */
+.zoomed-image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* 深色半透明背景，聚焦图片 */
+  
+  /* ================= 核心 Aero 魔法：背景虚化 ================= */
+  /* 如果浏览器支持，添加类似 Windows Vista/7 的毛玻璃背景虚化效果 */
+  -webkit-backdrop-filter: blur(10px); 
+  backdrop-filter: blur(10px); 
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 确保在最上层 */
+  opacity: 0; /* 默认不可见 */
+  visibility: hidden; /* 默认隐藏 */
+  transition: opacity 0.3s ease, visibility 0.3s ease; /* 平滑淡入淡出 */
+  cursor: zoom-out; /* 鼠标变为缩小图标，提示点击可关闭 */
+}
+
+/* 当模态框处于显示状态时 */
+.zoomed-image-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 4. 模态框内的放大图片样式 */
+.zoomed-image-modal img {
+  max-width: 90%; /* 限制最大宽度，留出边距 */
+  max-height: 90%; /* 限制最大高度，留出边距 */
+  object-fit: contain; /* 确保图片完整显示，不裁剪 */
+  border-radius: 8px; /* 晶莹的圆角 */
+  border: 4px solid rgba(255, 255, 255, 0.8); /* 厚实的白色玻璃边框 */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 1); /* 强烈的外部投影和内部高光 */
+  
+  /* Aero 风格的进入动画：淡入并轻微放大 */
+  transform: scale(0.9); 
+  transition: transform 0.3s ease;
+}
+
+/* 当模态框显示时，图片动画到达最终状态 */
+.zoomed-image-modal.show img {
+  transform: scale(1);
 }
