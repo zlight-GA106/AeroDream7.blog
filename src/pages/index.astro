@@ -1,17 +1,36 @@
 ---
+import Layout from '../layouts/Layout.astro';
 
+// 获取并按时间倒序排列所有文章
+const allPosts = Object.values(import.meta.glob('./posts/*.md', { eager: true }));
+allPosts.sort((a: any, b: any) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="系统主页 | AeroDreams">
+  {allPosts.map((post: any) => (
+    <article class="window glass-panel" style="margin-bottom: 30px;">
+      
+      <div class="title-bar aero-title-bar">
+        <div class="title-bar-text">
+          <img src="/icon/041.png" style="width: 16px; vertical-align: middle; margin-right: 5px;">
+          {post.frontmatter.title}
+        </div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize" disabled></button>
+          <button aria-label="Maximize" class="btn-mobile-view" title="强制切换到手机视图"></button>
+          <button aria-label="Close" class="btn-desktop-view" title="恢复标准电脑视图"></button>
+        </div>
+      </div>
+      
+      <div class="window-body article-body">
+        <div style="color: #666; font-size: 11px; margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
+          创建时间: {post.frontmatter.date}
+        </div>
+        
+        <div set:html={post.compiledContent()} />
+        
+      </div>
+
+    </article>
+  ))}
+</Layout>

@@ -1,0 +1,47 @@
+---
+// 引入你的全局玻璃面板骨架
+import Layout from '../layouts/Layout.astro';
+
+// 魔法指令：扫描 posts 文件夹下的所有 markdown 文章
+// 【换成底层原生引擎】
+const allPosts = Object.values(import.meta.glob('./posts/*.md', { eager: true }));
+
+// 将文章按照日期从新到旧进行排序
+allPosts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
+---
+
+<Layout title="系统归档 | AeroDreams">
+  <div class="window glass-panel" style="margin-bottom: 30px;">
+    
+    <div class="title-bar aero-title-bar">
+      <div class="title-bar-text">
+        <img src="/icon/022.png" style="width: 16px; margin-right: 5px; vertical-align: middle;">
+        系统归档记录 (Archives)
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Maximize" class="btn-mobile-view" title="强制切换到手机视图"></button>
+        <button aria-label="Close" class="btn-desktop-view" title="恢复标准电脑视图"></button>
+      </div>
+    </div>
+    
+    <div class="window-body article-body" style="padding: 15px 25px;">
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        {allPosts.map((post) => (
+          <li style="margin-bottom: 12px; border-bottom: 1px dashed rgba(0,0,0,0.2); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+            
+            <a href={post.url} style="text-decoration: none; color: #1e5799; font-weight: bold; font-size: 15px; display: flex; align-items: center;">
+              <img src="/icon/086.png" style="width: 14px; margin-right: 8px;">
+              {post.frontmatter.title}
+            </a>
+            
+            <span style="color: #666; font-size: 12px; background: rgba(255,255,255,0.5); padding: 2px 6px; border-radius: 4px; border: 1px solid #ddd; box-shadow: inset 0 1px 0 #fff;">
+              {post.frontmatter.date}
+            </span>
+            
+          </li>
+        ))}
+      </ul>
+    </div>
+    
+  </div>
+</Layout>

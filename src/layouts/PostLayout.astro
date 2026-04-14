@@ -1,0 +1,30 @@
+---
+import Layout from './Layout.astro';
+// 接收 Markdown 文件传过来的属性
+const { frontmatter } = Astro.props;
+---
+
+<Layout title={frontmatter.title + " | AeroDreams"}>
+  <article class="window glass-panel" style="margin-bottom: 30px;">
+    
+    <div class="title-bar aero-title-bar">
+      <div class="title-bar-text">
+        <img src="/icon/041.png" style="width: 16px; vertical-align: middle; margin-right: 5px;">
+        {frontmatter.title}
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" disabled></button>
+        <button aria-label="Maximize" class="btn-mobile-view" title="强制切换到手机视图"></button>
+        <button aria-label="Close" class="btn-desktop-view" title="恢复标准电脑视图"></button>
+      </div>
+    </div>
+    
+    <div class="window-body article-body">
+      <div style="color: #666; font-size: 11px; margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
+        创建时间: {frontmatter.date}
+      </div>
+      <slot />
+    </div>
+
+  </article>
+</Layout>

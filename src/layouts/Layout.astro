@@ -1,0 +1,140 @@
+---
+// 引入抽离出去的全局样式
+import '../styles/global.css';
+
+const { title = "AeroDreams | Astro" } = Astro.props;
+
+// 1. 获取所有文章用于提取标签和计算总数
+const allPosts = Object.values(import.meta.glob('../pages/posts/*.md', { eager: true }));
+const tags = [...new Set(allPosts.map((post: any) => post.frontmatter.tags || []).flat())];
+
+// 2. 站点状态统计逻辑
+const postCount = allPosts.length;
+// 假设你的建站日期是 2026-04-09，计算运行天数
+const startDate = new Date('2026-04-09').getTime();
+const today = new Date().getTime();
+const runDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <link rel="stylesheet" href="/css/7.css/dist/7.css">
+</head>
+<body>
+  <div id="aero-workspace">
+    
+    <aside class="sidebar-left" style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <div class="window glass-panel">
+        <div class="title-bar aero-title-bar">
+          <div class="title-bar-text">
+            <img src="/icon/014.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
+            用户标识
+          </div>
+        </div>
+        <div class="window-body" style="padding: 15px; text-align: center;">
+          <div style="width: 80px; height: 80px; margin: 0 auto 10px auto; border: 2px solid rgba(255,255,255,0.8); border-radius: 8px; background: linear-gradient(135deg, #e0f7fa, #80deea); box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center;">
+            <img src="/icon/054.png" style="width: 48px;">
+          </div>
+          <h3 style="margin: 5px 0; color: #003366; font-family: 'Segoe UI', Tahoma;">zlight106</h3>
+          <p style="font-size: 11px; color: #555; margin: 5px 0; border-top: 1px dashed #ccc; padding-top: 8px;">
+            物联网应用 / 硬件 DIY / 赛博拾荒者
+          </p>
+        </div>
+      </div>
+
+      <div class="window glass-panel">
+        <div class="title-bar aero-title-bar">
+          <div class="title-bar-text">
+            <img src="/icon/071.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
+            系统探针
+          </div>
+        </div>
+        <div class="window-body" style="padding: 15px;">
+          <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; color: #333;">
+            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;">
+              <span><img src="/icon/041.png" style="width: 12px; vertical-align: middle; margin-right: 4px;"> 归档总数:</span>
+              <span style="font-weight: bold; color: #1e5799;">{postCount} 篇</span>
+            </li>
+            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;">
+              <span><img src="/icon/035.png" style="width: 12px; vertical-align: middle; margin-right: 4px;"> 运行时间:</span>
+              <span style="font-weight: bold; color: #1e5799;">{runDays} 天</span>
+            </li>
+            <li style="display: flex; justify-content: space-between;">
+              <span><img src="/icon/028.png" style="width: 12px; vertical-align: middle; margin-right: 4px;"> 当前状态:</span>
+              <span style="font-weight: bold; color: #006600;">Online (正常)</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="window glass-panel">
+        <div class="title-bar aero-title-bar">
+          <div class="title-bar-text">
+            <img src="/icon/017.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
+            环境常量 (Tags)
+          </div>
+        </div>
+        <div class="window-body" style="padding: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
+          {tags.map((tag) => (
+            <a href="#" class="aero-tag-btn">{tag as string}</a>
+          ))}
+        </div>
+      </div>
+
+    </aside>
+
+    <main class="main-content">
+      <slot />
+    </main>
+
+    <aside class="sidebar-right">
+      <div class="window glass-panel">
+        <div class="title-bar aero-title-bar">
+          <div class="title-bar-text">
+            <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
+            控制面板
+          </div>
+        </div>
+        <div class="window-body" style="display: flex; flex-direction: column; gap: 8px; padding: 15px;">
+          <a href="/" class="aero-nav-btn">
+            <img src="/icon/021.png" style="width: 14px; margin-right: 6px; vertical-align: middle;">Home
+          </a>
+          <a href="/archives" class="aero-nav-btn">
+            <img src="/icon/022.png" style="width: 14px; margin-right: 6px; vertical-align: middle;">Archives
+          </a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</body>
+</div>
+  <script>
+    // Astro 页面加载完毕后执行
+    document.addEventListener('DOMContentLoaded', () => {
+      // 找到页面上所有的“最大化”和“关闭”按钮
+      const mobileBtns = document.querySelectorAll('.btn-mobile-view');
+      const desktopBtns = document.querySelectorAll('.btn-desktop-view');
+
+      // 为所有的“最大化(口)”按钮绑定：开启手机视图
+      mobileBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.body.classList.add('force-mobile');
+        });
+      });
+
+      // 为所有的“关闭(X)”按钮绑定：恢复电脑视图
+      desktopBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.body.classList.remove('force-mobile');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+</html>
