@@ -1,16 +1,40 @@
 ---
 import Layout from './Layout.astro';
-// 接收 Markdown 文件传过来的属性
-const { frontmatter } = Astro.props;
+
+// 核心改动：接收传过来的 headings 目录数组 (给个默认空数组防爆)
+const { frontmatter, headings = [] } = Astro.props;
+
+const title = frontmatter.title || '无标题系统日志';
+const author = frontmatter.author || 'zlight106'; 
+const rawDate = frontmatter.date || frontmatter.created_at || '2000-01-01';
+const pubDateString = String(rawDate).split('T')[0];
+
+const pubDate = new Date(pubDateString);
+const today = new Date();
+const diffTime = Math.abs(today.getTime() - pubDate.getTime());
+const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+const articleUrl = Astro.url.href;
+
+const tags = frontmatter.tags || [];
+const isNovel = Array.isArray(tags) ? tags.includes('小说') : tags === '小说';
+const isAboutPage = Astro.url.pathname.includes('/about');
+
+const showWarning = !isNovel && !isAboutPage;
+
+// ================= 新增：目录显示逻辑 =================
+// 如果不是小说、不是关于页面，且真的有标题数据，才允许显示目录
+const showTOC = !isNovel && !isAboutPage && headings.length > 0;
+// =====================================================
 ---
 
-<Layout title={frontmatter.title + " | AeroDreams"}>
+<Layout title={title + " | AeroDreams"} showTOC={showTOC} headings={headings}>
   <article class="window glass-panel" style="margin-bottom: 30px;">
     
     <div class="title-bar aero-title-bar">
       <div class="title-bar-text">
-        <img src="/icon/041.png" style="width: 16px; vertical-align: middle; margin-right: 5px;">
-        {frontmatter.title}
+        <img src="/icon/041.png" style="width: 16px; margin: 0 5px 0 0; padding: 0; display: inline-block; vertical-align: middle; border: none; box-shadow: none;">
+        {title}
       </div>
       <div class="title-bar-controls">
         <button aria-label="Minimize" disabled></button>
@@ -19,12 +43,71 @@ const { frontmatter } = Astro.props;
       </div>
     </div>
     
-    <div class="window-body article-body">
+    <div class="window-body article-body" style="padding: 20px;">
+      
       <div style="color: #666; font-size: 11px; margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
-        创建时间: {frontmatter.date}
+        创建时间: {pubDateString}
       </div>
-      <slot />
-    </div>
+      
+      <main class="article-content" style="line-height: 1.8; color: #333;">
+        <slot />
+      </main>
 
+      <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #c4d5e6; clear: both;">
+
+        {showWarning && (
+          <div style="background-color: #ffffe1; border: 1px solid #999999; padding: 12px 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; font-size: 12px; color: #333; box-shadow: inset 0 1px 0 rgba(255,255,255,1);">
+            <img src="/icon/071.png" style="width: 28px; height: 28px; margin: 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;">
+            <div style="line-height: 1.6;">
+              <div style="font-weight: bold; margin-bottom: 2px; font-size: 13px;">
+                最后更新于 {pubDateString}，距今已过 {diffDays} 天
+              </div>
+              <div style="color: #555;">
+                如果此时间过长，数据卷中的信息可能会失去时效性或不再准确，请在执行操作前注意甄别。
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div style="background: rgba(255, 255, 255, 0.6); border: 1px solid #aebac8; border-radius: 4px; padding: 18px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+          
+          <div style="font-weight: bold; font-size: 16px; color: #003366; margin-bottom: 15px; border-bottom: 1px dashed #b9d1ea; padding-bottom: 10px; display: flex; align-items: center;">
+             <img src="/icon/041.png" style="width: 18px; height: 18px; margin: 0 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
+             {title}
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: #444;">
+              
+              <div style="display: flex; align-items: center;">
+                <img src="/icon/014.png" style="width: 16px; height: 16px; margin: 0 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
+                <b>本文作者：</b> <span style="margin-left: 6px;">{author}</span>
+              </div>
+              
+              <div style="display: flex; align-items: center;">
+                <img src="/icon/035.png" style="width: 16px; height: 16px; margin: 0 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
+                <b>发布时间：</b> <span style="margin-left: 6px;">{pubDateString}</span>
+              </div>
+              
+              <div style="display: flex; align-items: center;">
+                <img src="/icon/028.png" style="width: 16px; height: 16px; margin: 0 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
+                <b>许可协议：</b> 
+                <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank" class="article-link" style="color: #1e5799; text-decoration: none; margin-left: 6px; border-bottom: 1px solid transparent;" onmouseover="this.style.borderBottom='1px solid #1e5799'" onmouseout="this.style.borderBottom='1px solid transparent'">
+                  CC BY-NC-SA 4.0 (署名-非商业性使用-相同方式共享)
+                </a>
+              </div>
+              
+              <div style="display: flex; align-items: flex-start;">
+                <img src="/icon/086.png" style="width: 16px; height: 16px; margin: 2px 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
+                <div style="word-break: break-all;">
+                  <b>文章链接：</b> 
+                  <a href={articleUrl} style="color: #1e5799; text-decoration: none; margin-left: 6px;">{articleUrl}</a>
+                </div>
+              </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
   </article>
 </Layout>

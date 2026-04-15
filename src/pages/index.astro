@@ -1,101 +1,103 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
 
-// 获取所有文章
-const allPosts = Object.values(import.meta.glob('./posts/*.md', { eager: true }));
+const allPosts = await getCollection('posts');
 
-// 时间格式化魔法
-const getDate = (fm: any) => {
-  const rawDate = fm.created_at || fm.date || '2000-01-01';
-  return String(rawDate).split('T')[0];
+const formatDate = (dateObj: any) => {
+  if (!dateObj) return '2000-01-01';
+  const d = new Date(dateObj);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
-// 按时间从新到旧排序
-allPosts.sort((a: any, b: any) => new Date(getDate(b.frontmatter)).valueOf() - new Date(getDate(a.frontmatter)).valueOf());
+allPosts.sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
 
-// 提取所有文章的 URL，转成 JSON 字符串，准备传给“随机文章”按钮的 JS 逻辑
-const postUrls = JSON.stringify(allPosts.map((post: any) => post.url));
+// 核心修复 1：把 post.slug 换成了 post.id
+const postUrls = JSON.stringify(allPosts.map(post => `/posts/${post.id}`));
+const searchData = JSON.stringify(allPosts.map(post => ({
+  title: post.data.title || '无标题日志',
+  url: `/posts/${post.id}`
+})));
 ---
 
 <Layout title="系统主页 | AeroDreams">
   
-  <div class="window glass-panel" style="margin-bottom: 25px; cursor: pointer; transition: transform 0.1s;" id="btn-random-post" data-urls={postUrls} title="点击随机抽取一篇系统日志">
-    <div class="window-body" style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to right, rgba(255,255,255,0.8), rgba(255,255,255,0.3)); border-radius: 6px;">
-      <span style="font-weight: bold; color: #1e5799; font-size: 15px;">
-        <img src="/icon/068.png" style="width: 18px; vertical-align: middle; margin-right: 8px;"> 
-        随机系统日志 (Random Access)
-      </span>
-      <span style="color: #666; font-weight: bold; font-family: 'Consolas', monospace;">></span>
+  <div class="window glass-panel" style="margin-bottom: 25px;">
+    <div class="title-bar aero-title-bar">
+      <div class="title-bar-text">
+        <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 全局检索
+      </div>
+    </div>
+    <div class="window-body" style="padding: 15px;">
+      <form action="/search" method="get" class="searchbox" style="margin: 0;">
+        <input type="search" name="q" id="search-input" placeholder="输入文章标题或关键字..." required autocomplete="off" />
+        <button type="submit" aria-label="search" id="search-btn" onclick="document.body.classList.add('is-loading')"></button>
+      </form>
     </div>
   </div>
 
-  {allPosts.map((post: any) => (
-    <article class="window glass-panel" style="margin-bottom: 30px;">
-      
-      <div class="title-bar aero-title-bar">
-        <div class="title-bar-text">
-          <img src="/icon/041.png" style="width: 16px; vertical-align: middle; margin-right: 5px;">
-          <a href={post.url} style="color: inherit; text-decoration: none;">{post.frontmatter.title}</a>
-        </div>
-        <div class="title-bar-controls">
-          <button aria-label="Minimize" disabled></button>
-          <button aria-label="Maximize" class="btn-mobile-view" title="强制切换手机视图"></button>
-          <button aria-label="Close" class="btn-desktop-view" title="恢复电脑视图"></button>
-        </div>
-      </div>
-      
-      <div class="window-body article-body" style="padding: 20px;">
-        
-        <div style="display: flex; gap: 15px; font-size: 12px; color: #555; margin-bottom: 15px; border-bottom: 1px dashed rgba(0,0,0,0.15); padding-bottom: 10px; flex-wrap: wrap;">
-          <span>
-            <img src="/icon/035.png" style="width:12px; vertical-align: middle; margin-right:3px;"> {getDate(post.frontmatter)}
-          </span>
-          <span>
-            <img src="/icon/017.png" style="width:12px; vertical-align: middle; margin-right:3px;"> 
-            {post.frontmatter.tags ? post.frontmatter.tags[0] : (post.frontmatter.tag || '未分类')}
-          </span>
-          <span>
-            <img src="/icon/086.png" style="width:12px; vertical-align: middle; margin-right:3px;"> 日志片段
-          </span>
-        </div>
-        
-        <div style="margin-bottom: 20px; color: #333; line-height: 1.6;">
-          {post.frontmatter.description || "该系统日志暂无摘要，请点击右下角按钮挂载完整数据卷以查看详细内容..."}
-        </div>
-        
-        <div style="text-align: right;">
-          <a href={post.url} class="aero-nav-btn" style="display: inline-block; padding: 6px 18px; font-size: 12px;">
-            挂载数据卷 (Read More)
-          </a>
-        </div>
+  <div class="window glass-panel" style="margin-bottom: 25px; cursor: pointer; transition: transform 0.1s;" id="btn-random-post" data-urls={postUrls}>
+    <div class="window-body" style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to right, rgba(255,255,255,0.8), rgba(255,255,255,0.3)); border-radius: 6px;">
+      <span style="font-weight: bold; color: #1e5799; font-size: 15px;">
+        <img src="/icon/041.png" style="width: 18px; vertical-align: middle; margin-right: 8px;"> 随机挑选一篇文章
+      </span>
+      <span style="color: #666; font-weight: bold;">></span>
+    </div>
+  </div>
 
-      </div>
-    </article>
-  ))}
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const randomBtn = document.getElementById('btn-random-post');
-      if (randomBtn) {
-        // 增加一点按下的物理反馈
-        randomBtn.addEventListener('mousedown', () => randomBtn.style.transform = 'scale(0.99)');
-        randomBtn.addEventListener('mouseup', () => randomBtn.style.transform = 'scale(1)');
+  {allPosts.map((post) => {
+    const wordCount = post.body ? post.body.replace(/\s/g, '').length : 0;
+    const readTime = Math.max(1, Math.ceil(wordCount / 400));
+    return (
+      <article class="window glass-panel" style="margin-bottom: 30px;">
         
-        randomBtn.addEventListener('click', function() {
-          try {
-            // 从 data-urls 属性中解析出所有的文章链接
-            const urls = JSON.parse(this.getAttribute('data-urls'));
-            if (urls && urls.length > 0) {
-              // 随机抽取一个索引
-              const randomIndex = Math.floor(Math.random() * urls.length);
-              // 执行跳转
-              window.location.href = urls[randomIndex];
-            }
-          } catch (e) {
-            console.error('随机跃迁失败', e);
-          }
-        });
-      }
-    });
-  </script>
+        <div class="title-bar aero-title-bar" style="position: relative;">
+          <div class="title-bar-text">
+            <img src="/icon/035.png" style="width: 16px; vertical-align: middle; margin-right: 5px;">
+            <a href={`/posts/${post.id}`} style="color: inherit; text-decoration: none;" class="article-link">{post.data.title}</a>
+          </div>
+          <div role="tooltip" class="is-bottom is-left aero-balloon">{post.data.title}</div>
+          <div class="title-bar-controls">
+            <button aria-label="Minimize" disabled></button>
+            <button aria-label="Maximize" class="btn-mobile-view" title="强制切换手机视图"></button>
+            <button aria-label="Close" class="btn-desktop-view" title="恢复电脑视图"></button>
+          </div>
+        </div>
+        
+        <div class="window-body article-body" style="padding: 20px;">
+          
+          <div style="display: flex; gap: 10px; font-size: 12px; color: #333; flex-wrap: wrap; align-items: center; margin-bottom: 15px;">
+            <span class="aero-badge">
+              <img src="/icon/035.png" style="width: 14px; margin-right: 6px; display: block;">
+              {formatDate(post.data.date)}
+            </span>
+            <span class="aero-badge">
+              <img src="/icon/017.png" style="width: 14px; margin-right: 6px; display: block;">
+              {post.data.tags ? post.data.tags[0] : '未分类'}
+            </span>
+            <span class="aero-badge">
+              <img src="/icon/086.png" style="width: 14px; margin-right: 6px; display: block;">
+              日志片段
+            </span>
+          </div>
+          
+          <div style="margin-bottom: 20px; color: #444; line-height: 1.6; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 15px;">
+            {post.data.description || "该系统日志暂无摘要，请点击右下方按钮查看详细内容..."}
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 12px; color: #888;">{wordCount} 字 &nbsp;|&nbsp; {readTime} 分钟</div>
+            <a href={`/posts/${post.id}`} class="aero-nav-btn article-link" style="padding: 6px 18px; font-size: 12px;">详细阅读</a>
+          </div>
+          
+        </div>
+      </article>
+    );
+  })}
+
+  <div id="search-db" data-search={searchData} style="display: none;"></div>
+
 </Layout>

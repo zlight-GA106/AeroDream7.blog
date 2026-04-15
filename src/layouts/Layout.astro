@@ -1,19 +1,27 @@
 ---
-// 引入抽离出去的全局样式
 import '../styles/global.css';
+import { getCollection } from 'astro:content';
 
-const { title = "AeroDreams | Astro" } = Astro.props;
+// 接收下层传来的 title、showTOC (是否显示目录)、headings (目录数据)
+const { title = "AeroDreams | Astro", showTOC = false, headings = [] } = Astro.props;
 
-// 1. 获取所有文章用于提取标签和计算总数
-const allPosts = Object.values(import.meta.glob('../pages/posts/*.md', { eager: true }));
-const tags = [...new Set(allPosts.map((post: any) => post.frontmatter.tags || []).flat())];
+const allPosts = await getCollection('posts');
+const tags = [...new Set(allPosts.map((post) => post.data.tags || []).flat())];
 
-// 2. 站点状态统计逻辑
 const postCount = allPosts.length;
-// 假设你的建站日期是 2026-04-09，计算运行天数
 const startDate = new Date('2026-04-09').getTime();
 const today = new Date().getTime();
 const runDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+
+let totalWordCount = 0;
+allPosts.forEach((post) => {
+  if (post.body) {
+    totalWordCount += post.body.replace(/\s/g, '').length;
+  }
+});
+const formattedWordCount = totalWordCount > 10000 
+  ? (totalWordCount / 10000).toFixed(1) + ' 万' 
+  : totalWordCount.toLocaleString();
 ---
 
 <!DOCTYPE html>
@@ -28,57 +36,50 @@ const runDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
   <div id="aero-workspace">
     
     <aside class="sidebar-left" style="display: flex; flex-direction: column; gap: 20px;">
-      
       <div class="window glass-panel">
         <div class="title-bar aero-title-bar">
           <div class="title-bar-text">
-            <img src="/icon/014.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
-            用户标识
+            <img src="/icon/014.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 关于站长
           </div>
         </div>
-        
         <div class="window-body" style="padding: 15px; text-align: center;">
-          
-          <div style="width: 80px; height: 80px; margin: 0 auto 10px auto; border: 2px solid rgba(255,255,255,0.8); border-radius: 8px; background: linear-gradient(135deg, #e0f7fa, #80deea); box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center;">
-            <img src="/icon/054.png" style="width: 48px;">
-          </div>
+          <a href="/about" style="display: inline-block; text-decoration: none;" onclick="document.body.classList.add('is-loading')">
+            <div class="win7-avatar-frame" title="点击查看「关于本站」">
+              <div class="avatar-inner">
+                <img src="/icon/054.png" alt="User Avatar">
+              </div>
+            </div>
+          </a>
           <h3 style="margin: 5px 0; color: #003366; font-family: 'Segoe UI', Tahoma;">zlight106</h3>
-          <p style="font-size: 11px; color: #555; margin: 5px 0 15px 0; border-top: 1px dashed #ccc; padding-top: 8px;">
-            物联网应用 / 硬件 DIY / 赛博拾荒者
+          <p style="font-size: 11px; color: #555; margin: 5px 0 15px 0; border-top: 1px dashed #ccc; padding-top: 8px; line-height: 1.6; text-wrap: balance; word-break: keep-all;">
+            业余计算机爱好者 / 硬件 DIY / furry / 赛博拾荒者 / 偶尔写写小说
           </p>
-          
           <div style="display: flex; gap: 8px; justify-content: center;">
-            <a href="https://github.com/zlight106" target="_blank" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">
-              <img src="/icon/086.png" style="width: 12px; vertical-align: middle; margin-right: 3px;"> 源代码
-            </a>
-            <a href="/rss.xml" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">
-              <img src="/icon/071.png" style="width: 12px; vertical-align: middle; margin-right: 3px;"> RSS 订阅
-            </a>
+            <a href="https://github.com/zlight106" target="_blank" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">源代码</a>
+            <a href="/rss.xml" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">RSS 订阅</a>
           </div>
-
         </div>
       </div>
 
       <div class="window glass-panel">
         <div class="title-bar aero-title-bar">
           <div class="title-bar-text">
-            <img src="/icon/071.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
-            系统探针
+            <img src="/icon/071.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点统计
           </div>
         </div>
         <div class="window-body" style="padding: 15px;">
           <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; color: #333;">
             <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;">
-              <span><img src="/icon/041.png" style="width: 12px; vertical-align: middle; margin-right: 4px;"> 归档总数:</span>
-              <span style="font-weight: bold; color: #1e5799;">{postCount} 篇</span>
+              <span>归档总数:</span><span style="font-weight: bold; color: #1e5799;">{postCount} 篇</span>
             </li>
             <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;">
-              <span><img src="/icon/035.png" style="width: 12px; vertical-align: middle; margin-right: 4px;"> 运行时间:</span>
-              <span style="font-weight: bold; color: #1e5799;">{runDays} 天</span>
+              <span>站点字数:</span><span style="font-weight: bold; color: #1e5799;">{formattedWordCount} 字</span>
+            </li>
+            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;">
+              <span>运行时间:</span><span style="font-weight: bold; color: #1e5799;">{runDays} 天</span>
             </li>
             <li style="display: flex; justify-content: space-between;">
-              <span><img src="/icon/028.png" style="width: 12px; vertical-align: middle; margin-right: 4px;"> 当前状态:</span>
-              <span style="font-weight: bold; color: #006600;">Online (正常)</span>
+              <span>当前状态:</span><span style="font-weight: bold; color: #006600;">Online</span>
             </li>
           </ul>
         </div>
@@ -87,161 +88,108 @@ const runDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
       <div class="window glass-panel">
         <div class="title-bar aero-title-bar">
           <div class="title-bar-text">
-            <img src="/icon/017.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
-            环境常量 (Tags)
+            <img src="/icon/017.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 标签
           </div>
         </div>
         <div class="window-body" style="padding: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
           {tags.map((tag) => (
-            <a href="#" class="aero-tag-btn">{tag as string}</a>
+            <a href="#" class="aero-badge" style="text-decoration: none; color: #333; font-size: 11px;">{tag as string}</a>
           ))}
         </div>
       </div>
-
     </aside>
 
     <main class="main-content">
       <slot />
+
+      <footer style="margin-top: 60px; padding: 20px; background: linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(255,255,255,0.2)); border: 1px solid rgba(255,255,255,0.7); border-top: 1px solid #c4d5e6; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 2px 5px rgba(0,0,0,0.05); color: #555; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-shadow: 0 1px 0 #fff;">
+        <div style="display: flex; align-items: center; justify-content: center;">
+           <img src="/icon/014.png" style="width: 14px; margin-right: 6px; opacity: 0.8; vertical-align: middle;">
+           <span>&copy; 2024-2026 <b>zlight106</b> 版权所有</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center;">
+           <img src="/icon/028.png" style="width: 14px; margin-right: 6px; opacity: 0.8; vertical-align: middle;">
+           <span>
+             自豪地使用 
+             <a href="/" style="color: #1e5799; font-weight: bold; font-family: 'Segoe UI', Tahoma, sans-serif; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">
+               AeroDream7
+             </a> 
+             主题
+           </span>
+        </div>
+      </footer>
     </main>
 
-    <aside class="sidebar-right">
-      <div class="window glass-panel">
+    <aside class="sidebar-right" style="display: flex; flex-direction: column; gap: 15px; position: sticky; top: 20px; height: calc(100vh - 40px);">
+      
+      <div style="flex-shrink: 0; padding: 12px 10px; background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(225, 240, 250, 0.6)); border: 1px solid #8cb6d9; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(255,255,255,1), 0 2px 4px rgba(0,0,0,0.05); text-align: center; backdrop-filter: blur(4px);">
+        <h2 style="font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; font-size: 16px; font-weight: bold; color: #003366; text-shadow: 0 1px 0 #fff; margin: 0; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <img src="/icon/041.png" style="width: 18px; margin: 0; padding: 0;">
+          紫光的现代小窝
+        </h2>
+      </div>
+
+      <div class="window glass-panel" style="flex-shrink: 0;">
         <div class="title-bar aero-title-bar">
           <div class="title-bar-text">
-            <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
-            控制面板
+            <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点索引
           </div>
         </div>
         <div class="window-body" style="display: flex; flex-direction: column; gap: 8px; padding: 15px;">
-          <a href="/" class="aero-nav-btn">
-            <img src="/icon/021.png" style="width: 14px; margin-right: 6px; vertical-align: middle;">Home
+          
+          <a href="/" class="aero-nav-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.body.classList.add('is-loading')">
+            <img src="/icon/041.png" style="width: 14px; margin: 0; padding: 0;"> 
+            <span>主页</span>
           </a>
-          <a href="/archives" class="aero-nav-btn">
-            <img src="/icon/022.png" style="width: 14px; margin-right: 6px; vertical-align: middle;">Archives
+          
+          <a href="/archives" class="aero-nav-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.body.classList.add('is-loading')">
+            <img src="/icon/022.png" style="width: 14px; margin: 0; padding: 0;"> 
+            <span>文章归档</span>
           </a>
+          
+          <a href="/about" class="aero-nav-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.body.classList.add('is-loading')">
+            <img src="/icon/014.png" style="width: 14px; margin: 0; padding: 0;"> 
+            <span>关于本站</span>
+          </a>
+          
+          <a href="/novels" class="aero-nav-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.body.classList.add('is-loading')">
+            <img src="/icon/086.png" style="width: 14px; margin: 0; padding: 0;"> 
+            <span>随手写的小说</span>
+          </a>
+
         </div>
       </div>
+
+      {showTOC && (
+        <div class="window glass-panel" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+          <div class="title-bar aero-title-bar" style="flex-shrink: 0;">
+            <div class="title-bar-text">
+              <img src="/icon/086.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 文章目录
+            </div>
+          </div>
+          <div class="window-body" style="padding: 12px; overflow-y: auto; flex: 1; min-height: 0;">
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; line-height: 2;">
+              {headings.map((h: any) => (
+                <li style={`padding-left: ${(h.depth - 1) * 12}px; margin-bottom: 2px;`}>
+                  <a 
+                    href={`#${h.slug}`} 
+                    style="color: #444; text-decoration: none; display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" 
+                    onmouseover="this.style.color='#1e5799'; this.style.textDecoration='underline';" 
+                    onmouseout="this.style.color='#444'; this.style.textDecoration='none';"
+                    title={h.text}
+                  >
+                    {h.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </aside>
+    
   </div>
+  
+  <script src="../scripts/main.js"></script>
 </body>
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-      // ================= 1. 布局模式切换逻辑 (手机/桌面) =================
-      const mobileBtns = document.querySelectorAll('.btn-mobile-view');
-      const desktopBtns = document.querySelectorAll('.btn-desktop-view');
-
-      mobileBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.body.classList.add('mode-mobile');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      });
-
-      desktopBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.body.classList.remove('mode-mobile');
-        });
-      });
-
-      // ================= 2. 代码块一键复制逻辑 =================
-      const codeBlocks = document.querySelectorAll('pre');
-
-      codeBlocks.forEach((block) => {
-        // 创建一个“绝对静止”的外部包裹框 (Wrapper)
-        const wrapper = document.createElement('div');
-        wrapper.style.position = 'relative';
-        
-        // 将原本的代码块用这个外框包起来
-        block.parentNode.insertBefore(wrapper, block);
-        wrapper.appendChild(block);
-
-        // 动态生成按钮
-        const copyButton = document.createElement('button');
-        copyButton.className = 'copy-code-btn';
-        copyButton.textContent = '复制'; // 纯文字，拒绝 Emoji
-
-        // 绑定点击事件
-        copyButton.addEventListener('click', async () => {
-          const codeText = block.querySelector('code')?.innerText || block.innerText;
-
-          try {
-            await navigator.clipboard.writeText(codeText);
-            
-            // 视觉反馈只改变文字
-            copyButton.textContent = '已复制';
-
-            // 2 秒后恢复原状
-            setTimeout(() => {
-              copyButton.textContent = '复制';
-            }, 2000);
-          } catch (err) {
-            console.error('复制失败!', err);
-            copyButton.textContent = '失败';
-          }
-        });
-
-        // 把按钮挂载到“静止的外框(wrapper)”上
-        wrapper.appendChild(copyButton);
-      });
-
-      // ================= 3. 新增：图片单击放大逻辑 (Aero Glass 风格) =================
-      const articleImages = document.querySelectorAll('.article-body img');
-
-      articleImages.forEach((img) => {
-        img.addEventListener('click', () => {
-          // 1. 创建模态框元素
-          const modal = document.createElement('div');
-          modal.className = 'zoomed-image-modal';
-
-          // 2. 创建放大后的图片元素，并设置原图片的 src
-          const zoomedImg = document.createElement('img');
-          zoomedImg.src = img.src;
-          if (img.alt) zoomedImg.alt = img.alt;
-
-          // 3. 将图片放入模态框
-          modal.appendChild(zoomedImg);
-
-          // 4. 将模态框添加到页面 body 末尾
-          document.body.appendChild(modal);
-
-          // 5. 灵魂修复：禁止页面滚动，聚焦放大图片
-          document.body.style.overflow = 'hidden';
-
-          // 6. Aero 魔法：平滑淡入
-          requestAnimationFrame(() => {
-            modal.classList.add('show');
-          });
-
-          // 7. 绑定关闭事件：点击模态框任何位置
-          modal.addEventListener('click', () => {
-            // 平滑淡出
-            modal.classList.remove('show');
-            // 动画完成后从页面中彻底移除模态框元素
-            modal.addEventListener('transitionend', () => {
-                modal.remove();
-                // 恢复页面滚动
-                document.body.style.overflow = '';
-            }, { once: true });
-          });
-
-          // 8. 绑定 Esc 键关闭事件
-          const handleEsc = (event) => {
-            if (event.key === 'Escape') {
-              modal.click(); // 模拟点击模态框关闭
-              window.removeEventListener('keydown', handleEsc); // 移除监听器
-            }
-          };
-          window.addEventListener('keydown', handleEsc);
-
-        });
-      });
-
-    });
-  </script>
-</body>
-</html>
-</body>
-</html>
 </html>

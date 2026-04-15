@@ -342,3 +342,190 @@ body.mode-mobile .main-content {
 .zoomed-image-modal.show img {
   transform: scale(1);
 }
+
+/* ================= 魔法：原生 Win7 气泡提示框 (Balloon) ================= */
+
+/* 1. 强制标题不换行，超出部分永远显示省略号 */
+.title-bar-text {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex: 1; 
+  margin-right: 15px; 
+}
+
+/* 2. 气泡初始状态：隐藏、透明、且位于最顶层 */
+.aero-title-bar .aero-balloon {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 100%; /* 贴在标题栏的正下方 */
+  left: 20px; /* 稍微靠右对齐，留出视觉空间 */
+  z-index: 99999; /* 绝对在最上层，不被任何文章遮挡 */
+  margin-top: 6px; /* 给气泡的尖角留出距离 */
+  
+  /* 修复气泡内部文字的排版 */
+  white-space: normal; 
+  max-width: 350px; /* 防止标题太长导致气泡无限变宽 */
+  word-break: break-word;
+  line-height: 1.5;
+  font-weight: normal; /* 去掉标题栏自带的粗体 */
+  
+  /* 灵魂细节：淡入动画与悬停延迟 */
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition-delay: 0.5s; /* 原生系统通常鼠标停留 0.5 秒后才会弹出气泡，避免误触闪烁 */
+  pointer-events: none; /* 鼠标穿透气泡，防止干扰点击 */
+}
+
+/* 3. 鼠标悬停在标题栏时：触发气泡显形 */
+.aero-title-bar:hover .aero-balloon {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ================= 魔法：Win7 经典玻璃头像框 ================= */
+.win7-avatar-frame {
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 15px auto;
+  /* 1. 外层相框：极度透明的玻璃底，带有柔和的投影 */
+  background: rgba(255, 255, 255, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.5); 
+  border-radius: 10px; /* 外框圆角 */
+  padding: 4px; /* 形成相框厚度 */
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.2), /* 外阴影 */
+    inset 0 1px 3px rgba(255, 255, 255, 0.8), /* 顶部玻璃高光 */
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1); /* 底部玻璃暗部 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+/* 头像框悬停效果：轻微上浮并发光 */
+.win7-avatar-frame:hover {
+  transform: scale(1.03);
+  box-shadow: 
+    0 6px 14px rgba(0, 0, 0, 0.25), 
+    inset 0 1px 3px rgba(255, 255, 255, 1), 
+    inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.win7-avatar-frame .avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px; /* 内侧圆角，略小于外框 */
+  overflow: hidden;
+  /* 如果你的图是透明的，保留渐变底色；如果以后换成实景照片，这层会被覆盖 */
+  background: linear-gradient(135deg, #e0f7fa, #80deea);
+  /* 2. 内层照片：模拟被嵌在玻璃内部的深邃阴影 */
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.5); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.win7-avatar-frame .avatar-inner img {
+  width: 100%; /* 为了填满内框，建议你后续准备一张正方形的高清图片 */
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ================= 魔法：Aero 徽章与按钮悬停动画 ================= */
+
+/* 1. 将原来写死在 HTML 里的超长样式提取成专属的徽章类 */
+.aero-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(170, 190, 220, 0.8);
+  padding: 4px 10px;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 1px 1px rgba(0,0,0,0.05);
+  /* 核心：添加 0.2秒 的所有属性平滑过渡 */
+  transition: all 0.2s ease-in-out; 
+  cursor: default; /* 鼠标指针 */
+}
+
+/* 2. 徽章悬停效果：浮现 Aero 蓝光晕 */
+.aero-badge:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #8cb6d9;
+  box-shadow: 
+    inset 0 0 6px rgba(255,255,255,1), 
+    0 0 8px rgba(80, 170, 240, 0.4); /* 标志性的 Win7 蓝辉光 */
+  transform: translateY(-1px); /* 微微上浮立体感 */
+}
+
+/* 3. 为之前已有的导航按钮（如“详细阅读”）也加上同样的动画 */
+.aero-nav-btn {
+  transition: all 0.2s ease-in-out;
+}
+.aero-nav-btn:hover {
+  box-shadow: inset 0 0 6px rgba(255,255,255,1), 0 0 8px rgba(80, 170, 240, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* ================= 魔法：全局加载鼠标指针 ================= */
+/* 触发时，调用操作系统原生的“等待/繁忙”动画指针 */
+body.is-loading,
+body.is-loading * {
+  cursor: wait !important; 
+}
+
+/* 修复 7.css 搜索框的默认宽度 */
+.searchbox {
+  display: flex;
+  width: 100%;
+}
+.searchbox input {
+  flex: 1;
+}
+
+/* =========================================
+   Win7 Aero 原生质感滚动条 (全局生效)
+========================================= */
+
+/* 1. 滚动条整体宽度和高度 */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+/* 2. 滚动条的轨道 (底色) */
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-left: 1px solid #e3e3e3; /* 边缘立体感 */
+}
+
+/* 3. 滚动条的滑块 (核心玻璃质感) */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to right, #e4effa 0%, #c1dbfc 100%); /* Win7 经典浅蓝渐变 */
+  border: 1px solid #8cb6d9;
+  border-radius: 2px;
+  /* 内发光，模拟玻璃高光 */
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.9), inset -1px -1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* 4. 滑块悬停状态 (变亮) */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to right, #d4e7fa 0%, #a2caf8 100%);
+  border: 1px solid #70c0e7;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 1), 0 0 3px rgba(112, 192, 231, 0.4);
+}
+
+/* 5. 滑块按下状态 (变深) */
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(to right, #b4d4f4 0%, #83b4f0 100%);
+  border: 1px solid #4a9ccc;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 6. 交汇角 (当同时有垂直和水平滚动条时) */
+::-webkit-scrollbar-corner {
+  background: #f0f0f0;
+}
+
+/* 7. 隐藏现代浏览器默认的丑陋端点按钮 */
+::-webkit-scrollbar-button {
+  display: none;
+}

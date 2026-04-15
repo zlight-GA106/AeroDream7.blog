@@ -1,0 +1,189 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// 1. 新引擎获取数据
+const allPosts = await getCollection('posts');
+
+const formatDate = (dateObj: any) => {
+  if (!dateObj) return '2000-01-01';
+  const d = new Date(dateObj);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// 2. 映射为检索引擎需要的数据对象 (直接读取 post.data)
+const searchDataObj = allPosts.map(post => ({
+  title: post.data.title || '无标题日志',
+  description: post.data.description || "该系统日志暂无摘要...",
+  tags: post.data.tags || ['未分类'],
+  date: formatDate(post.data.date),
+  url: `/posts/${post.id}`
+}));
+---
+
+<Layout title="搜索结果 | AeroDreams">
+  <div class="window glass-panel">
+    <div class="title-bar aero-title-bar">
+      <div class="title-bar-text">
+        <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
+        搜索主题 (Search Results)
+      </div>
+    </div>
+    
+    <div class="window-body" style="padding: 20px;">
+      
+      <div style="background: linear-gradient(to bottom, #f0f8ff, #e6f2fa); border: 1px solid #b9d1ea; padding: 12px 15px; border-radius: 4px; margin-bottom: 20px; color: #333; font-size: 13px; display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 1px 2px rgba(255,255,255,0.8);">
+        <span id="search-status-text">
+          <img src="/icon/068.png" style="width: 14px; vertical-align: middle; margin-right: 5px;">
+          正在挂载数据卷并执行检索...
+        </span>
+        <a href="/" class="aero-nav-btn" style="font-size: 12px; padding: 4px 10px; margin: 0;" onclick="document.body.classList.add('is-loading')">重新检索</a>
+      </div>
+
+      <div id="results-container" style="display: flex; flex-direction: column; gap: 12px;">
+      </div>
+      
+    </div>
+  </div>
+
+  <script define:vars={{ searchDataObj }}>
+    const initSearchEngine = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get('q');
+      const statusText = document.getElementById('search-status-text');
+      const container = document.getElementById('results-container');
+
+      if (!statusText || !container) return;
+
+      if (!query) {
+        statusText.innerHTML = `
+          <img src="/icon/071.png" style="width: 14px; vertical-align: middle; margin-right: 5px;">
+          <b>检索参数丢失：</b> 请输入有效的关键字进行查询。
+        `;
+        return;
+      }
+
+      const q = String(query).trim().toLowerCase();
+      const safeRegexStr = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      
+      try {
+        // ================= 相似度打分算法 =================
+        let results = searchDataObj.map(post => {
+          let score = 0;
+          
+          const title = String(post.title).toLowerCase();
+          const desc = String(post.description).toLowerCase();
+          const tags = Array.isArray(post.tags) ? post.tags.map(t => String(t).toLowerCase()) : [];
+
+          if (title === q) {
+            score += 200;
+          } else if (title.includes(q)) {
+            score += 100 - (title.length - q.length); 
+          }
+          
+          if (tags.some(t => t.includes(q))) {
+            score += 50;
+          }
+          
+          if (desc.includes(q)) {
+            score += 20;
+          }
+
+          return { ...post, score };
+        });
+
+        results = results.filter(p => p.score > 0).sort((a, b) => b.score - a.score);
+
+        // ================= 渲染结果 =================
+        if (results.length > 0) {
+          statusText.innerHTML = `
+            <img src="/icon/028.png" style="width: 14px; vertical-align: middle; margin-right: 5px;">
+            <b>检索完成：</b> 标题含 <span style="color: #d9534f; font-weight:bold;">${query}</span> ，共匹配到 <b>${results.length}</b> 篇文章。
+          `;
+          
+          results.forEach(res => {
+            const card = document.createElement('a');
+            card.href = res.url;
+            card.className = "search-result-card";
+            card.style.cssText = `
+              display: block;
+              text-decoration: none;
+              background: rgba(255, 255, 255, 0.7);
+              border: 1px solid #c4d5e6;
+              border-radius: 5px;
+              padding: 12px 15px;
+              color: #333;
+              transition: all 0.2s ease;
+              box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.03);
+            `;
+            
+            card.addEventListener('mouseenter', () => {
+              card.style.background = 'rgba(255, 255, 255, 0.95)';
+              card.style.borderColor = '#8cb6d9';
+              card.style.boxShadow = 'inset 0 0 6px rgba(255,255,255,1), 0 0 8px rgba(80, 170, 240, 0.4)';
+            });
+            card.addEventListener('mouseleave', () => {
+              card.style.background = 'rgba(255, 255, 255, 0.7)';
+              card.style.borderColor = '#c4d5e6';
+              card.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.03)';
+            });
+            
+            card.addEventListener('click', () => document.body.classList.add('is-loading'));
+
+            const highlightTitle = String(res.title).replace(new RegExp(safeRegexStr, 'gi'), match => `<span style="color: #d9534f;">${match}</span>`);
+
+            const tagsHtml = res.tags.length > 0 
+              ? `<span class="aero-badge" style="padding: 2px 6px; font-size: 11px;"><img src="/icon/017.png" style="width: 10px; margin-right: 4px;">${res.tags[0]}</span>` 
+              : '';
+
+            card.innerHTML = `
+              <div style="font-size: 15px; font-weight: bold; color: #003366; margin-bottom: 8px;">
+                <img src="/icon/035.png" style="width: 16px; vertical-align: middle; margin-right: 6px;">
+                ${highlightTitle}
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px; font-size: 12px; color: #666;">
+                ${tagsHtml}
+                <span style="display: inline-flex; align-items: center;">
+                  <img src="/icon/035.png" style="width: 10px; margin-right: 4px;">${res.date}
+                </span>
+                <span style="display: inline-flex; align-items: center; margin-left: 10px; color: #888;">
+                  [匹配度: ${res.score}]
+                </span>
+              </div>
+              <div style="font-size: 12px; color: #555; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                ${res.description}
+              </div>
+            `;
+            
+            container.appendChild(card);
+          });
+        } else {
+          // ================= 专属空状态 UI =================
+          statusText.innerHTML = `
+            <img src="/icon/071.png" style="width: 14px; vertical-align: middle; margin-right: 5px;">
+            <b>检索完毕：</b> 未找到相关文章
+          `;
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; background: rgba(255, 255, 255, 0.4); border: 1px dashed #aebac8; border-radius: 6px;">
+              <img src="/icon/022.png" style="width: 54px; margin-bottom: 15px; opacity: 0.8;">
+              <h3 style="color: #444; margin-bottom: 10px;">本站似乎没有这个内容呢......</h3>
+              <p style="color: #777; font-size: 13px;">尝试精简关键字，或者点击右上方 <a href="/" style="color: #1e5799; text-decoration: none; font-weight: bold;" onclick="document.body.classList.add('is-loading')">回到主页</a> 逛逛吧！</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error("搜索引擎遭遇严重故障:", error);
+        statusText.innerHTML = `
+          <img src="/icon/071.png" style="width: 14px; vertical-align: middle; margin-right: 5px;">
+          <b>系统故障：</b> 核心检索引擎在分析数据卷时崩溃。
+        `;
+        container.innerHTML = `<div style="color: red; font-size: 12px; padding: 10px;">Error Logs: ${error.message}</div>`;
+      }
+    };
+
+    initSearchEngine();
+  </script>
+</Layout>

@@ -2,45 +2,41 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
-// 1. 获取所有文章 (Astro 5 新引擎)
+// 1. 获取所有文章
 const allPosts = await getCollection('posts');
 
-// 2. 按时间倒序排序
-allPosts.sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
+// 2. 核心过滤魔法：只留下带有 "小说" 标签的文章！
+const novelPosts = allPosts.filter(post => {
+  const tags = post.data.tags || [];
+  return tags.includes('小说');
+});
 
-// 3. 数据分组引擎：按“精确的年月日”将文章归类
-const groupedPosts: Record<string, typeof allPosts> = {};
+// 3. 按时间倒序排序
+novelPosts.sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
 
-allPosts.forEach(post => {
+// 4. 按精确时间分组
+const groupedPosts: Record<string, typeof novelPosts> = {};
+novelPosts.forEach(post => {
   const d = new Date(post.data.date);
-  const year = d.getFullYear();
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-  
-  // 生成组名，例如 "2026年4月14日"
-  const dateKey = `${year}年${month}月${day}日`;
-
-  if (!groupedPosts[dateKey]) {
-    groupedPosts[dateKey] = [];
-  }
+  const dateKey = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  if (!groupedPosts[dateKey]) groupedPosts[dateKey] = [];
   groupedPosts[dateKey].push(post);
 });
 
-// 4. 拟物化魔法：估算文件大小 (将字数转换为大致的 KB 数)
+// 估算字数/大小
 const getSimulatedFileSize = (text: string) => {
   const chars = text ? text.length : 0;
-  // 假设一个中文字符+排版大约占 3 bytes
   const kb = Math.max(1, Math.ceil((chars * 3) / 1024)); 
   return `${kb} KB`;
 };
 ---
 
-<Layout title="文章归档 | AeroDreams">
+<Layout title="随手写的小说 | AeroDreams">
   <div class="window glass-panel" style="margin-bottom: 25px;">
     
     <div class="title-bar aero-title-bar">
       <div class="title-bar-text">
-        <img src="/icon/022.png" style="width: 16px; margin-right: 4px; vertical-align: middle;"> 文章归档 (Archives)
+        <img src="/icon/086.png" style="width: 16px; margin-right: 4px; vertical-align: middle;"> 随手写的小说 (Novels)
       </div>
       <div class="title-bar-controls">
         <button aria-label="Minimize" disabled></button>
@@ -52,8 +48,8 @@ const getSimulatedFileSize = (text: string) => {
     <div class="window-body" style="background: #ffffff; padding: 2px; border: 1px solid #8cb6d9;">
       
       <div style="display: flex; border-bottom: 1px solid #e6e6e6; padding: 6px 10px; font-size: 12px; color: #555; background: linear-gradient(to bottom, #ffffff, #f2f2f2);">
-        <div style="flex: 5; border-right: 1px solid #e6e6e6; padding-left: 2px;">名称</div>
-        <div style="flex: 2; border-right: 1px solid #e6e6e6; padding-left: 8px;">修改日期</div>
+        <div style="flex: 5; border-right: 1px solid #e6e6e6; padding-left: 2px;">章节名称</div>
+        <div style="flex: 2; border-right: 1px solid #e6e6e6; padding-left: 8px;">落笔日期</div>
         <div style="flex: 2; border-right: 1px solid #e6e6e6; padding-left: 8px;">类型</div>
         <div style="flex: 1; padding-left: 8px; text-align: right; padding-right: 10px;">大小</div>
       </div>
@@ -62,13 +58,12 @@ const getSimulatedFileSize = (text: string) => {
         
         {Object.keys(groupedPosts).length === 0 ? (
           <div style="text-align: center; padding: 40px; color: #999; font-size: 13px;">
-            <img src="/icon/071.png" style="width: 32px; margin-bottom: 10px; opacity: 0.5;"><br>
-            此文件夹为空。
+            <img src="/icon/086.png" style="width: 32px; margin-bottom: 10px; opacity: 0.5;"><br>
+            暂无小说归档，快去灵感库写点什么吧！
           </div>
         ) : (
           Object.keys(groupedPosts).map(dateKey => (
             <div style="margin-bottom: 15px;">
-              
               <div style="display: flex; align-items: center; margin-bottom: 5px; padding-bottom: 3px; border-bottom: 1px solid #e5e5e5; cursor: default;">
                 <div style="width: 11px; height: 11px; border: 1px solid #999; display: flex; align-items: center; justify-content: center; margin-right: 8px; background: linear-gradient(to bottom, #fff, #e4e4e4);">
                   <div style="width: 5px; height: 1px; background: #000;"></div>
@@ -85,34 +80,21 @@ const getSimulatedFileSize = (text: string) => {
                   
                   return (
                     <a href={`/posts/${post.id}`} class="archive-list-item" style="display: flex; align-items: center; text-decoration: none; color: #222; font-size: 12px; padding: 4px 10px; border: 1px solid transparent; transition: all 0.1s;" onclick="document.body.classList.add('is-loading')">
-                      
                       <div style="flex: 5; display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding-right: 10px;">
                         <img src="/icon/086.png" style="width: 16px; flex-shrink: 0;">
-                        <span style="overflow: hidden; text-overflow: ellipsis;">{post.data.title}.md</span>
+                        <span style="overflow: hidden; text-overflow: ellipsis; font-weight: bold;">{post.data.title}.md</span>
                       </div>
-                      
-                      <div style="flex: 2; color: #666; padding-left: 8px;">
-                        {formattedDate}
-                      </div>
-                      
-                      <div style="flex: 2; color: #666; padding-left: 8px;">
-                        Markdown 源文件
-                      </div>
-                      
-                      <div style="flex: 1; color: #666; text-align: right; padding-right: 10px;">
-                        {getSimulatedFileSize(post.body || '')}
-                      </div>
-                      
+                      <div style="flex: 2; color: #666; padding-left: 8px;">{formattedDate}</div>
+                      <div style="flex: 2; color: #666; padding-left: 8px;">文本文档</div>
+                      <div style="flex: 1; color: #666; text-align: right; padding-right: 10px;">{getSimulatedFileSize(post.body || '')}</div>
                     </a>
                   );
                 })}
               </div>
-              
             </div>
           ))
         )}
       </div>
-
     </div>
   </div>
 

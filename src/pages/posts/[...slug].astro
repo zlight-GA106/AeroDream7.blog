@@ -1,0 +1,21 @@
+---
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('posts');
+  return blogEntries.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+
+// 核心改动：不仅拿出 Content正文，还要拿出 headings 目录数据
+const { Content, headings } = await render(entry);
+---
+
+<PostLayout frontmatter={entry.data} headings={headings}>
+  <Content />
+</PostLayout>
