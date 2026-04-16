@@ -254,28 +254,47 @@ body.mode-mobile .main-content {
 
 /* ================= 魔法：强制修复窗口控件高亮 (Aero Glass 级) ================= */
 
-/* 1. 给最大化（手机模式）按钮加上经典的 Aero 蓝宝石悬停发光 */
-.title-bar-controls button.btn-mobile-view {
+/* 1. 蓝宝石发光：覆盖最大化、最小化、以及你自定义的手机视图按钮 */
+.title-bar-controls button.btn-mobile-view,
+.title-bar-controls button[aria-label="Maximize"],
+.title-bar-controls button[aria-label="Minimize"],
+.title-bar-controls button[aria-label="Restore"] {
   transition: all 0.15s ease-in-out;
+  border-radius: 3px !important; /* 增加微圆角，让内发光更柔和顺滑 */
 }
-.title-bar-controls button.btn-mobile-view:hover {
+
+.title-bar-controls button.btn-mobile-view:hover,
+.title-bar-controls button[aria-label="Maximize"]:hover,
+.title-bar-controls button[aria-label="Minimize"]:hover,
+.title-bar-controls button[aria-label="Restore"]:hover {
   background-color: rgba(80, 170, 240, 0.6) !important; 
   box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.8), 0 0 4px rgba(80, 170, 240, 0.5) !important;
 }
-.title-bar-controls button.btn-mobile-view:active {
+
+.title-bar-controls button.btn-mobile-view:active,
+.title-bar-controls button[aria-label="Maximize"]:active,
+.title-bar-controls button[aria-label="Minimize"]:active,
+.title-bar-controls button[aria-label="Restore"]:active {
   background-color: rgba(40, 130, 210, 0.8) !important;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* 2. 给关闭（桌面模式）按钮加上经典的 Aero 红宝石悬停发光 */
-.title-bar-controls button.btn-desktop-view {
+/* 2. 红宝石发光：覆盖关闭按钮以及你自定义的桌面视图按钮 */
+.title-bar-controls button.btn-desktop-view,
+.title-bar-controls button[aria-label="Close"] {
   transition: all 0.15s ease-in-out;
+  border-radius: 3px !important; 
+  border-top-right-radius: 6px !important; /* Win7关闭按钮右上角更圆润，贴合窗口边缘 */
 }
-.title-bar-controls button.btn-desktop-view:hover {
+
+.title-bar-controls button.btn-desktop-view:hover,
+.title-bar-controls button[aria-label="Close"]:hover {
   background-color: rgba(220, 50, 50, 0.85) !important; 
   box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.6), 0 0 4px rgba(220, 50, 50, 0.5) !important;
 }
-.title-bar-controls button.btn-desktop-view:active {
+
+.title-bar-controls button.btn-desktop-view:active,
+.title-bar-controls button[aria-label="Close"]:active {
   background-color: rgba(180, 20, 20, 0.95) !important;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }

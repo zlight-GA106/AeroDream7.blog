@@ -1,0 +1,89 @@
+/* ================= custom-waline-aero.css ================= */
+/* 强制 Waline 使用 Segoe UI 字体，并增加行高，极大提升可读性 */
+#waline {
+  font-family: 'Segoe UI', Tahoma, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: #333 !important;
+}
+
+/* 1. 拟物化包装：表情包和输入框容器 */
+#waline .wl-header {
+  border: 1px solid #7cbbed !important;
+  border-bottom: none !important;
+  border-top-left-radius: 4px !important;
+  border-top-right-radius: 4px !important;
+  background: linear-gradient(to bottom, #e4effa 0%, #c1dbfc 100%) !important;
+}
+
+/* 2. 拟物化包装：评论输入区 (白底、3D边框、锁死高度防溢出) */
+#waline .wl-input {
+  border: 1px solid #aebac8 !important;
+  border-bottom-left-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+  background: #fff !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+#waline .wl-input:focus {
+  border-color: #70c0e7 !important;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.9), 0 0 5px rgba(80, 170, 240, 0.4) !important;
+}
+
+/* 3. 拟物化包装：提交按钮 (Win7 原生按钮质感) */
+#waline .wl-btn {
+  background: linear-gradient(to bottom, #f3f3f3 0%, #dcdcdc 100%) !important;
+  border: 1px solid #ababab !important;
+  border-radius: 4px !important;
+  color: #333 !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+  box-shadow: 0 1px 0 #fff !important;
+  text-shadow: 0 1px 0 #fff !important;
+}
+#waline .wl-btn:hover {
+  background: linear-gradient(to bottom, #e4effa 0%, #c1dbfc 100%) !important;
+  border-color: #7cbbed !important;
+}
+#waline .wl-btn:active {
+  background: linear-gradient(to bottom, #c1dbfc 0%, #e4effa 100%) !important;
+  border-color: #7cbbed !important;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+/* 4. 拟物化包装：评论列表项 (系统列表样式) */
+#waline .wl-list li {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid #c4d5e6 !important;
+  border-radius: 6px !important;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 5px rgba(0,0,0,0.05) !important;
+  margin-bottom: 15px !important;
+  padding: 15px !important;
+  transition: all 0.2s !important;
+}
+#waline .wl-list li:hover {
+  background: #f0f8ff !important;
+  border-color: #7cbbed !important;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.9), 0 0 10px rgba(80, 170, 240, 0.3) !important;
+}
+
+/* 5. 评论用户信息的系统级排版 */
+#waline .wl-meta span {
+  font-size: 11px !important;
+  color: #666 !important;
+}
+#waline .wl-meta span b {
+  color: #003366 !important;
+  font-weight: bold !important;
+}
+#waline .wl-content p {
+  font-size: 13px !important;
+  color: #333 !important;
+  line-height: 1.6 !important;
+}
+
+/* 6. 严防：彻底锁死评论区最大高度，强制出现滚动条，防溢出屏幕 */
+#waline .wl-list {
+  max-height: 400px !important;
+  overflow-y: auto !important;
+}

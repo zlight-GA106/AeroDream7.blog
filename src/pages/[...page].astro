@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
-// ================= 1. 开启 Astro 原生分页引擎 =================
+// ================= 1. 开启 Astro 原生分页引擎 (核心防爆函数) =================
 export async function getStaticPaths({ paginate }: any) {
   const allPosts = await getCollection('posts');
   allPosts.sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
@@ -11,7 +11,7 @@ export async function getStaticPaths({ paginate }: any) {
 
 const { page } = Astro.props;
 
-// ================= 3. 为全局检索保留全量数据 =================
+// ================= 2. 为全局检索保留全量数据 =================
 const allPostsForSearch = await getCollection('posts');
 const postUrls = JSON.stringify(allPostsForSearch.map(post => `/posts/${post.id}`));
 const searchData = JSON.stringify(allPostsForSearch.map(post => ({
@@ -27,7 +27,41 @@ const formatDate = (dateObj: any) => {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
+// ================= 3. 智能省略号分页算法 =================
+const getPaginationGroup = (current: number, last: number) => {
+  if (last <= 7) return Array.from({ length: last }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, '...', last];
+  if (current >= last - 3) return [1, '...', last - 4, last - 3, last - 2, last - 1, last];
+  return [1, '...', current - 1, current, current + 1, '...', last];
+};
+const paginationGroup = getPaginationGroup(page.currentPage, page.lastPage);
+// =========================================================
 ---
+
+<style>
+  .aero-page-btn {
+    min-width: 36px;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    transition: all 0.15s ease-in-out;
+  }
+  .aero-page-btn:not([disabled]):hover {
+    background-color: rgba(80, 170, 240, 0.4) !important; 
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.8), 0 0 4px rgba(80, 170, 240, 0.5) !important;
+    border-color: #3c7fb1;
+  }
+  .aero-page-btn:not([disabled]):active {
+    background-color: rgba(40, 130, 210, 0.6) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  }
+  .aero-page-btn.active-page {
+    background: linear-gradient(to bottom, #e4effa 0%, #c1dbfc 100%) !important;
+    border: 1px solid #70c0e7 !important;
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.9), inset -1px -1px 0 rgba(255, 255, 255, 0.4) !important;
+    color: #003366 !important;
+    font-weight: bold;
+  }
+</style>
 
 <Layout title="系统主页 | AeroDreams">
   
@@ -99,37 +133,60 @@ const formatDate = (dateObj: any) => {
       
       <div class="window-body" style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: #f0f0f0;">
         
-        <div style="display: flex; gap: 8px;">
-          {page.url.prev ? (
-            <button onclick={`window.location.href='${page.url.prev}'`} style="min-width: 80px; font-family: 'Segoe UI', Tahoma;">上一页</button>
-          ) : (
-            <button disabled style="min-width: 80px; font-family: 'Segoe UI', Tahoma;">上一页</button>
-          )}
+        <div style="display: flex; gap: 5px; align-items: center;">
+          <button 
+            class="aero-page-btn" 
+            onclick={page.url.prev ? `window.location.href='${page.url.prev}'` : ''} 
+            disabled={!page.url.prev}
+            style="padding: 0 8px;"
+          >
+            上一页
+          </button>
 
-          {page.url.next ? (
-            <button onclick={`window.location.href='${page.url.next}'`} style="min-width: 80px; font-family: 'Segoe UI', Tahoma;">下一页</button>
-          ) : (
-            <button disabled style="min-width: 80px; font-family: 'Segoe UI', Tahoma;">下一页</button>
-          )}
+          {paginationGroup.map(num => {
+            if (num === '...') {
+              return <span style="padding: 0 4px; color: #666; font-weight: bold; letter-spacing: 1px; user-select: none;">...</span>;
+            }
+            const isActive = page.currentPage === num;
+            return (
+              <button 
+                class={`aero-page-btn ${isActive ? 'active-page' : ''}`}
+                onclick={`window.location.href='${num === 1 ? '/' : `/${num}`}'`}
+                disabled={isActive}
+              >
+                {num}
+              </button>
+            );
+          })}
+
+          <button 
+            class="aero-page-btn" 
+            onclick={page.url.next ? `window.location.href='${page.url.next}'` : ''} 
+            disabled={!page.url.next}
+            style="padding: 0 8px;"
+          >
+            下一页
+          </button>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #333;">
-          <span>跳转到</span>
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #333;">
+          <span>跳转到 (</span>
           <input 
             type="number" 
             id="jump-page-input" 
             min="1" 
-            max={page.lastPage} 
-            style="width: 45px; text-align: center; font-family: 'Segoe UI', Tahoma; padding: 2px;"
-            value={page.currentPage}
+            max={page.lastPage}
+            value={page.currentPage} 
+            style="width: 45px; margin: 0; padding: 2px;" 
           />
-          <span>页</span>
-          <button id="jump-page-btn" style="min-width: 45px; font-family: 'Segoe UI', Tahoma; margin-left: 5px;">跳转</button>
+          <span>) 页</span>
+          <button id="jump-page-btn" class="aero-page-btn" style="min-width: 40px; padding: 0 8px;">跳转</button>
         </div>
 
       </div>
     </div>
   )}
+
   <div id="search-db" data-search={searchData} style="display: none;"></div>
 
   <script define:vars={{ maxPage: page.lastPage }}>
@@ -140,24 +197,14 @@ const formatDate = (dateObj: any) => {
       if (jumpBtn && jumpInput) {
         const executeJump = () => {
           let targetPage = parseInt(jumpInput.value);
-          // 容错处理：确保输入合法
           if (isNaN(targetPage) || targetPage < 1) targetPage = 1;
           if (targetPage > maxPage) targetPage = maxPage;
           
           document.body.classList.add('is-loading');
-          
-          // Astro 的分页路由逻辑：第一页是根路径 '/'，其他是 '/2', '/3'等
-          if (targetPage === 1) {
-            window.location.href = '/';
-          } else {
-            window.location.href = `/${targetPage}`;
-          }
+          window.location.href = targetPage === 1 ? '/' : `/${targetPage}`;
         };
 
-        // 点击按钮执行跳转
         jumpBtn.addEventListener('click', executeJump);
-        
-        // 在输入框内按回车键也能执行跳转
         jumpInput.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -167,5 +214,4 @@ const formatDate = (dateObj: any) => {
       }
     });
   </script>
-
 </Layout>

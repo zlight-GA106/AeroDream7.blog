@@ -1,12 +1,11 @@
 ---
 import Layout from './Layout.astro';
 
-// 核心改动：接收传过来的 headings 目录数组 (给个默认空数组防爆)
-const { frontmatter, headings = [] } = Astro.props;
+const { frontmatter = {}, headings = [] } = Astro.props;
 
-const title = frontmatter.title || '无标题系统日志';
-const author = frontmatter.author || 'zlight106'; 
-const rawDate = frontmatter.date || frontmatter.created_at || '2000-01-01';
+const title = frontmatter?.title || '无标题系统日志';
+const author = frontmatter?.author || 'zlight106'; 
+const rawDate = frontmatter?.date || frontmatter?.created_at || '2000-01-01';
 const pubDateString = String(rawDate).split('T')[0];
 
 const pubDate = new Date(pubDateString);
@@ -16,21 +15,142 @@ const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
 const articleUrl = Astro.url.href;
 
-const tags = frontmatter.tags || [];
+const tags = frontmatter?.tags || [];
 const isNovel = Array.isArray(tags) ? tags.includes('小说') : tags === '小说';
 const isAboutPage = Astro.url.pathname.includes('/about');
 
 const showWarning = !isNovel && !isAboutPage;
-
-// ================= 新增：目录显示逻辑 =================
-// 如果不是小说、不是关于页面，且真的有标题数据，才允许显示目录
 const showTOC = !isNovel && !isAboutPage && headings.length > 0;
-// =====================================================
 ---
 
+<style is:global>
+  /* ================= 1. 狙击式击杀：彻底干掉垃圾元素，保留核心按钮 ================= */
+  #waline .wl-cards,       /* 评论列表本身 */
+  #waline .wl-empty,       /* 巨大的空评论占位符 (包含了巨大的刷新按钮) */
+  #waline .wl-refresh,     /* 孤立的刷新按钮 */
+  #waline .wl-rss,         /* 左下角的 RSS 图标 */
+  #waline .wl-power,       /* 底部 powered by */
+  #waline .wl-meta-head,   /* 头部的排序 */
+  #waline .wl-actions,     /* 左下角的表情、图片原生工具栏 */
+  #waline .wl-word-count,  /* "0 字" 统计 */
+  #waline .wl-text-number  /* 字数限制 */ {
+    display: none !important;
+  }
+
+  /* 释放包裹登录和提交按钮的容器，让它靠右侧对齐 */
+  #waline .wl-info {
+    display: flex !important;
+    flex: 1 !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* ================= 2. 基础面板重置 ================= */
+  #waline { font-family: 'Segoe UI', Tahoma, sans-serif !important; }
+  
+  #waline .wl-panel {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* ================= 3. 头部输入区 (修复被削的边角) ================= */
+  #waline .wl-header {
+    display: flex !important;
+    gap: 8px !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 0 8px 0 !important;
+  }
+  #waline .wl-header-item {
+    flex: 1 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+  #waline .wl-header-item label { display: none !important; }
+
+  /* 核心：强制所有 input 统统变成 2px 的圆角，覆盖 Waline 的畸形边角！ */
+  #waline .wl-header-item input,
+  #waline .wl-header-item:first-child input,
+  #waline .wl-header-item:last-child input,
+  #waline .wl-editor {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border: 1px solid #abadb3 !important; /* 7.css 经典边框色 */
+    border-radius: 2px !important; /* 强制抹平所有残缺边角 */
+    padding: 4px 6px !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
+    background: #fff !important;
+    color: #333 !important;
+    font-family: 'Segoe UI', Tahoma, sans-serif !important;
+    font-size: 12px !important;
+    outline: none !important;
+    transition: border-color 0.15s !important;
+  }
+  
+  #waline .wl-editor {
+    min-height: 100px !important;
+    resize: vertical !important;
+    margin-top: 0 !important;
+  }
+
+  /* 占位符颜色 */
+  #waline ::-webkit-input-placeholder { color: #888 !important; }
+  #waline ::-moz-placeholder { color: #888 !important; }
+
+  #waline .wl-header-item input:hover, 
+  #waline .wl-editor:hover { border-color: #7eb4ea !important; }
+  #waline .wl-header-item input:focus, 
+  #waline .wl-editor:focus {
+    border-color: #569de5 !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1), 0 0 3px rgba(86,157,229,0.4) !important;
+  }
+
+  /* ================= 4. 底部紧凑排版与 7.css 按钮复刻 ================= */
+  #waline .wl-footer {
+    margin: 0 !important;
+    padding: 6px 0 0 0 !important; /* 顶部距离缩小到 6px，让按钮向上紧凑贴合文本框 */
+    border: none !important;
+    background: transparent !important;
+    display: flex !important;
+  }
+
+  /* 严格复刻 7.css 经典 Button (只修饰还存活的 登录/提交 按钮) */
+  #waline .wl-btn {
+    background: linear-gradient(to bottom, #f2f2f2 0%, #ebebeb 49%, #dddddd 50%, #cfcfcf 100%) !important;
+    border: 1px solid #707070 !important;
+    border-radius: 3px !important;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8) !important;
+    padding: 3px 18px !important;
+    color: #333 !important;
+    font-family: 'Segoe UI', Tahoma, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: normal !important;
+    text-shadow: none !important;
+    cursor: pointer !important;
+    margin-left: 8px !important;
+    min-width: 75px !important;
+    transition: none !important;
+  }
+  #waline .wl-btn:hover {
+    background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%) !important;
+    border-color: #3c7fb1 !important;
+  }
+  #waline .wl-btn:active {
+    background: linear-gradient(to bottom, #e5f4fc 0%, #c4e5f6 49%, #98d1ef 50%, #68b3db 100%) !important;
+    border-color: #2c628b !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2) !important;
+  }
+</style>
+
 <Layout title={title + " | AeroDreams"} showTOC={showTOC} headings={headings}>
+  
   <article class="window glass-panel" style="margin-bottom: 30px;">
-    
     <div class="title-bar aero-title-bar">
       <div class="title-bar-text">
         <img src="/icon/041.png" style="width: 16px; margin: 0 5px 0 0; padding: 0; display: inline-block; vertical-align: middle; border: none; box-shadow: none;">
@@ -44,7 +164,6 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
     </div>
     
     <div class="window-body article-body" style="padding: 20px;">
-      
       <div style="color: #666; font-size: 11px; margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
         创建时间: {pubDateString}
       </div>
@@ -70,24 +189,20 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
         )}
 
         <div style="background: rgba(255, 255, 255, 0.6); border: 1px solid #aebac8; border-radius: 4px; padding: 18px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
-          
           <div style="font-weight: bold; font-size: 16px; color: #003366; margin-bottom: 15px; border-bottom: 1px dashed #b9d1ea; padding-bottom: 10px; display: flex; align-items: center;">
              <img src="/icon/041.png" style="width: 18px; height: 18px; margin: 0 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
              {title}
           </div>
           
           <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: #444;">
-              
               <div style="display: flex; align-items: center;">
                 <img src="/icon/014.png" style="width: 16px; height: 16px; margin: 0 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
                 <b>本文作者：</b> <span style="margin-left: 6px;">{author}</span>
               </div>
-              
               <div style="display: flex; align-items: center;">
                 <img src="/icon/035.png" style="width: 16px; height: 16px; margin: 0 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
                 <b>发布时间：</b> <span style="margin-left: 6px;">{pubDateString}</span>
               </div>
-              
               <div style="display: flex; align-items: center;">
                 <img src="/icon/028.png" style="width: 16px; height: 16px; margin: 0 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
                 <b>许可协议：</b> 
@@ -95,7 +210,6 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
                   CC BY-NC-SA 4.0 (署名-非商业性使用-相同方式共享)
                 </a>
               </div>
-              
               <div style="display: flex; align-items: flex-start;">
                 <img src="/icon/086.png" style="width: 16px; height: 16px; margin: 2px 8px 0 0; padding: 0; display: block; flex-shrink: 0; border: none; box-shadow: none;"> 
                 <div style="word-break: break-all;">
@@ -103,11 +217,52 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
                   <a href={articleUrl} style="color: #1e5799; text-decoration: none; margin-left: 6px;">{articleUrl}</a>
                 </div>
               </div>
-
           </div>
         </div>
-
       </div>
     </div>
   </article>
+
+  <div class="window glass-panel" style="margin-bottom: 30px;">
+    <div class="title-bar aero-title-bar">
+      <div class="title-bar-text">
+        <img src="/icon/014.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 访客留言
+      </div>
+    </div>
+    
+    <div class="window-body" style="padding: 15px; margin: 0; background: #f0f0f0; border-top: 1px solid #fff;">
+      <div id="waline"></div>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />
+  <script type="module">
+    import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      init({
+        el: '#waline',
+        serverURL: 'https://你的-waline-服务端地址.vercel.app', // ⚠️ 这里记得换成你的地址
+        search: false, 
+        emoji: false,        
+        imageUploader: false 
+      });
+
+      // DOM 拦截器：强行注入 7.css 占位符
+      const observer = new MutationObserver(() => {
+        const nickInput = document.querySelector('.wl-header-item input[name="nick"]');
+        const mailInput = document.querySelector('.wl-header-item input[name="mail"]');
+        const linkInput = document.querySelector('.wl-header-item input[name="link"]');
+        
+        if (nickInput && !nickInput.placeholder) {
+          nickInput.placeholder = '昵称 (必填)';
+          if (mailInput) mailInput.placeholder = '邮箱 (必填)';
+          if (linkInput) linkInput.placeholder = '个人网址 (选填)';
+          observer.disconnect();
+        }
+      });
+      
+      observer.observe(document.getElementById('waline'), { childList: true, subtree: true });
+    });
+  </script>
 </Layout>

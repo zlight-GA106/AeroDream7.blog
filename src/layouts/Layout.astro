@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import { getCollection } from 'astro:content';
 
-// 接收下层传来的 title、showTOC (是否显示目录)、headings (目录数据)
 const { title = "AeroDreams | Astro", showTOC = false, headings = [] } = Astro.props;
 
 const allPosts = await getCollection('posts');
@@ -13,15 +12,30 @@ const startDate = new Date('2026-04-09').getTime();
 const today = new Date().getTime();
 const runDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
 
-let totalWordCount = 0;
-allPosts.forEach((post) => {
-  if (post.body) {
-    totalWordCount += post.body.replace(/\s/g, '').length;
-  }
-});
+const totalWordCount = allPosts
+  .map(post => {
+    if (!post.body) return 0;
+    const bodyStr = String(post.body);
+    return (bodyStr.split('---').pop() || bodyStr).length;
+  })
+  .reduce((sum, current) => sum + current, 0);
+
 const formattedWordCount = totalWordCount > 10000 
   ? (totalWordCount / 10000).toFixed(1) + ' 万' 
   : totalWordCount.toLocaleString();
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isNavActive = (path: string) => {
+  if (path === '/') return currentPath === '/' || /^\/\d+$/.test(currentPath);
+  return currentPath.startsWith(path);
+};
+
+const navItems = [
+  { path: '/', icon: '041.png', label: '主页', mobileLabel: '主页' },
+  { path: '/archives', icon: '022.png', label: '文章归档', mobileLabel: '归档' },
+  { path: '/about', icon: '014.png', label: '关于本站', mobileLabel: '关于' },
+  { path: '/novels', icon: '086.png', label: '随手写的小说', mobileLabel: '小说' }
+];
 ---
 
 <!DOCTYPE html>
@@ -33,61 +47,25 @@ const formattedWordCount = totalWordCount > 10000
   <link rel="stylesheet" href="/css/7.css/dist/7.css">
   
   <style>
-    /* ================= 核心响应式布局魔法 ================= */
-    /* 默认电脑端布局：三栏弹性盒子 */
-    #aero-workspace {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 20px;
-      max-width: 1200px; /* 限制最大宽度，大屏更好看 */
-      margin: 0 auto;
-      padding: 20px 10px;
-    }
-    
-    .sidebar-left, .sidebar-right {
-      width: 260px; /* 固定侧边栏宽度 */
-      flex-shrink: 0;
-    }
-    
-    .main-content {
-      flex: 1;
-      min-width: 0; /* 防止长代码块撑破容器 */
-    }
+    #aero-workspace { display: flex; justify-content: center; align-items: flex-start; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 20px 10px; }
+    .sidebar-left, .sidebar-right { width: 260px; flex-shrink: 0; }
+    .main-content { flex: 1; min-width: 0; }
+    .mobile-top-nav { display: none; }
 
-    /* 移动端顶栏在电脑端默认隐藏 */
-    .mobile-top-nav {
-      display: none;
-    }
-
-    /* 当屏幕宽度小于 950px 时（窄屏/手机），触发大变形！ */
     @media (max-width: 950px) {
-      body {
-        padding-top: 50px; /* 给悬浮在顶部的导航条让出空间 */
-      }
-      #aero-workspace {
-        flex-direction: column; /* 改为垂直堆叠 */
-        padding: 10px;
-        gap: 15px;
-      }
-      /* 斩断羁绊：隐藏笨重的左右侧边栏 */
-      .sidebar-left, .sidebar-right {
-        display: none !important; 
-      }
-      /* 主内容区霸占 100% 宽度 */
-      .main-content {
-        width: 100%;
-      }
-      /* 召唤移动端专属的悬浮顶栏 */
-      .mobile-top-nav {
-        display: block;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      }
+      body { padding-top: 50px; }
+      #aero-workspace { flex-direction: column; padding: 10px; gap: 15px; }
+      .sidebar-left, .sidebar-right { display: none !important; }
+      .main-content { width: 100%; }
+      .mobile-top-nav { display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    }
+
+    .aero-nav-btn.active-nav {
+      background: linear-gradient(to bottom, #e4effa 0%, #c1dbfc 100%) !important;
+      border: 1px solid #70c0e7 !important;
+      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.9), inset -1px -1px 0 rgba(255, 255, 255, 0.4) !important;
+      color: #003366 !important;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -95,31 +73,18 @@ const formattedWordCount = totalWordCount > 10000
 
   <nav class="mobile-top-nav window glass-panel" style="border-radius: 0; border-width: 0 0 1px 0; margin: 0;">
     <div class="window-body" style="margin: 0; padding: 4px 10px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(225,240,250,0.8)); backdrop-filter: blur(10px);">
-      
       <a href="/" style="display: flex; align-items: center; gap: 6px; text-decoration: none; color: #003366; font-weight: bold; font-family: 'Segoe UI', Tahoma; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40%;">
         <img src="/icon/054.png" style="width: 20px; height: 20px; flex-shrink: 0;"> 
         <span style="overflow: hidden; text-overflow: ellipsis;">紫光的现代小窝</span>
       </a>
-
       <div style="display: flex; gap: 2px;">
-         <a href="/" class="aero-nav-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
-           <img src="/icon/041.png" style="width: 16px; margin-bottom: 2px;">
-           <span style="font-size: 10px; color: #333; line-height: 1;">主页</span>
-         </a>
-         <a href="/archives" class="aero-nav-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
-           <img src="/icon/022.png" style="width: 16px; margin-bottom: 2px;">
-           <span style="font-size: 10px; color: #333; line-height: 1;">归档</span>
-         </a>
-         <a href="/novels" class="aero-nav-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
-           <img src="/icon/086.png" style="width: 16px; margin-bottom: 2px;">
-           <span style="font-size: 10px; color: #333; line-height: 1;">小说</span>
-         </a>
-         <a href="/about" class="aero-nav-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
-           <img src="/icon/014.png" style="width: 16px; margin-bottom: 2px;">
-           <span style="font-size: 10px; color: #333; line-height: 1;">关于</span>
-         </a>
+        {navItems.map(item => (
+          <a href={item.path} class={`aero-nav-btn ${isNavActive(item.path) ? 'active-nav' : ''}`} style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
+            <img src={`/icon/${item.icon}`} style="width: 16px; margin-bottom: 2px;">
+            <span style="font-size: 10px; color: #333; line-height: 1;">{item.mobileLabel}</span>
+          </a>
+        ))}
       </div>
-
     </div>
   </nav>
 
@@ -127,23 +92,13 @@ const formattedWordCount = totalWordCount > 10000
     
     <aside class="sidebar-left" style="display: flex; flex-direction: column; gap: 20px;">
       <div class="window glass-panel">
-        <div class="title-bar aero-title-bar">
-          <div class="title-bar-text">
-            <img src="/icon/014.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 关于站长
-          </div>
-        </div>
+        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/014.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 关于站长</div></div>
         <div class="window-body" style="padding: 15px; text-align: center;">
           <a href="/about" style="display: inline-block; text-decoration: none;" onclick="document.body.classList.add('is-loading')">
-            <div class="win7-avatar-frame" title="点击查看「关于本站」">
-              <div class="avatar-inner">
-                <img src="/icon/054.png" alt="User Avatar">
-              </div>
-            </div>
+            <div class="win7-avatar-frame" title="点击查看「关于本站」"><div class="avatar-inner"><img src="/icon/054.png" alt="User Avatar"></div></div>
           </a>
           <h3 style="margin: 5px 0; color: #003366; font-family: 'Segoe UI', Tahoma;">zlight106</h3>
-          <p style="font-size: 11px; color: #555; margin: 5px 0 15px 0; border-top: 1px dashed #ccc; padding-top: 8px; line-height: 1.6; text-wrap: balance; word-break: keep-all;">
-            业余计算机爱好者 / 硬件 DIY / furry / 赛博拾荒者 / 偶尔写写小说
-          </p>
+          <p style="font-size: 11px; color: #555; margin: 5px 0 15px 0; border-top: 1px dashed #ccc; padding-top: 8px; line-height: 1.6; text-wrap: balance; word-break: keep-all;">业余计算机爱好者 / 硬件 DIY / furry / 赛博拾荒者 / 偶尔写写小说</p>
           <div style="display: flex; gap: 8px; justify-content: center;">
             <a href="https://github.com/zlight106" target="_blank" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">源代码</a>
             <a href="/rss.xml" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">RSS 订阅</a>
@@ -152,39 +107,21 @@ const formattedWordCount = totalWordCount > 10000
       </div>
 
       <div class="window glass-panel">
-        <div class="title-bar aero-title-bar">
-          <div class="title-bar-text">
-            <img src="/icon/071.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点统计
-          </div>
-        </div>
+        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/071.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点统计</div></div>
         <div class="window-body" style="padding: 15px;">
           <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; color: #333;">
-            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;">
-              <span>归档总数:</span><span style="font-weight: bold; color: #1e5799;">{postCount} 篇</span>
-            </li>
-            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;">
-              <span>站点字数:</span><span style="font-weight: bold; color: #1e5799;">{formattedWordCount} 字</span>
-            </li>
-            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;">
-              <span>运行时间:</span><span style="font-weight: bold; color: #1e5799;">{runDays} 天</span>
-            </li>
-            <li style="display: flex; justify-content: space-between;">
-              <span>当前状态:</span><span style="font-weight: bold; color: #006600;">Online</span>
-            </li>
+            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>归档总数:</span><span style="font-weight: bold; color: #1e5799;">{postCount} 篇</span></li>
+            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>站点字数:</span><span style="font-weight: bold; color: #1e5799;">{formattedWordCount} 字</span></li>
+            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>运行时间:</span><span style="font-weight: bold; color: #1e5799;">{runDays} 天</span></li>
+            <li style="display: flex; justify-content: space-between;"><span>当前状态:</span><span style="font-weight: bold; color: #006600;">Online</span></li>
           </ul>
         </div>
       </div>
 
       <div class="window glass-panel">
-        <div class="title-bar aero-title-bar">
-          <div class="title-bar-text">
-            <img src="/icon/017.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 标签
-          </div>
-        </div>
+        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/017.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 标签</div></div>
         <div class="window-body" style="padding: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
-          {tags.map((tag) => (
-            <a href="#" class="aero-badge" style="text-decoration: none; color: #333; font-size: 11px;">{tag as string}</a>
-          ))}
+          {tags.map((tag) => <a href="#" class="aero-badge" style="text-decoration: none; color: #333; font-size: 11px;">{tag as string}</a>)}
         </div>
       </div>
     </aside>
@@ -193,20 +130,8 @@ const formattedWordCount = totalWordCount > 10000
       <slot />
 
       <footer style="margin-top: 60px; padding: 20px; background: linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(255,255,255,0.2)); border: 1px solid rgba(255,255,255,0.7); border-top: 1px solid #c4d5e6; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 2px 5px rgba(0,0,0,0.05); color: #555; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-shadow: 0 1px 0 #fff;">
-        <div style="display: flex; align-items: center; justify-content: center;">
-           <img src="/icon/014.png" style="width: 14px; margin-right: 6px; opacity: 0.8; vertical-align: middle;">
-           <span>&copy; 2024-2026 <b>zlight106</b> 版权所有</span>
-        </div>
-        <div style="display: flex; align-items: center; justify-content: center;">
-           <img src="/icon/028.png" style="width: 14px; margin-right: 6px; opacity: 0.8; vertical-align: middle;">
-           <span>
-             自豪地使用 
-             <a href="/" style="color: #1e5799; font-weight: bold; font-family: 'Segoe UI', Tahoma, sans-serif; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">
-               AeroDream7
-             </a> 
-             主题
-           </span>
-        </div>
+        <div style="display: flex; align-items: center; justify-content: center;"><img src="/icon/014.png" style="width: 14px; margin-right: 6px; opacity: 0.8; vertical-align: middle;"><span>&copy; 2024-2026 <b>zlight106</b> 版权所有</span></div>
+        <div style="display: flex; align-items: center; justify-content: center;"><img src="/icon/028.png" style="width: 14px; margin-right: 6px; opacity: 0.8; vertical-align: middle;"><span>自豪地使用 <a href="/" style="color: #1e5799; font-weight: bold; font-family: 'Segoe UI', Tahoma, sans-serif; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">AeroDream7</a> 主题</span></div>
       </footer>
     </main>
 
@@ -214,39 +139,25 @@ const formattedWordCount = totalWordCount > 10000
       
       <div style="flex-shrink: 0; padding: 12px 10px; background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(225, 240, 250, 0.6)); border: 1px solid #8cb6d9; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(255,255,255,1), 0 2px 4px rgba(0,0,0,0.05); text-align: center; backdrop-filter: blur(4px);">
         <h2 style="font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; font-size: 16px; font-weight: bold; color: #003366; text-shadow: 0 1px 0 #fff; margin: 0; display: flex; align-items: center; justify-content: center; gap: 6px;">
-          <img src="/icon/041.png" style="width: 18px; margin: 0; padding: 0;">
-          紫光的现代小窝
+          <img src="/icon/041.png" style="width: 18px; margin: 0; padding: 0;"> 紫光的现代小窝
         </h2>
       </div>
 
       <div class="window glass-panel" style="flex-shrink: 0;">
         <div class="title-bar aero-title-bar">
-          <div class="title-bar-text">
-            <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点索引
+          <div class="title-bar-text"><img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点索引</div>
+          <div class="title-bar-controls">
+            <button aria-label="Minimize" title="折叠索引" onclick="document.getElementById('site-index-body').style.display='none'"></button>
+            <button aria-label="Maximize" title="展开索引" onclick="document.getElementById('site-index-body').style.display='flex'"></button>
           </div>
         </div>
-        <div class="window-body" style="display: flex; flex-direction: column; gap: 8px; padding: 15px;">
-          
-          <a href="/" class="aero-nav-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.body.classList.add('is-loading')">
-            <img src="/icon/041.png" style="width: 14px; margin: 0; padding: 0;"> 
-            <span>主页</span>
-          </a>
-          
-          <a href="/archives" class="aero-nav-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.body.classList.add('is-loading')">
-            <img src="/icon/022.png" style="width: 14px; margin: 0; padding: 0;"> 
-            <span>文章归档</span>
-          </a>
-          
-          <a href="/about" class="aero-nav-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.body.classList.add('is-loading')">
-            <img src="/icon/014.png" style="width: 14px; margin: 0; padding: 0;"> 
-            <span>关于本站</span>
-          </a>
-          
-          <a href="/novels" class="aero-nav-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.body.classList.add('is-loading')">
-            <img src="/icon/086.png" style="width: 14px; margin: 0; padding: 0;"> 
-            <span>随手写的小说</span>
-          </a>
-
+        <div id="site-index-body" class="window-body" style={`display: ${showTOC ? 'none' : 'flex'}; flex-direction: column; gap: 8px; padding: 15px;`}>
+          {navItems.map(item => (
+            <a href={item.path} class={`aero-nav-btn ${isNavActive(item.path) ? 'active-nav' : ''}`} style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 6px; text-decoration: none;" onclick="document.body.classList.add('is-loading')">
+              <img src={`/icon/${item.icon}`} style="width: 14px; margin: 0; padding: 0;"> 
+              <span>{item.label}</span>
+            </a>
+          ))}
         </div>
       </div>
 
@@ -261,13 +172,7 @@ const formattedWordCount = totalWordCount > 10000
             <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; line-height: 2;">
               {headings.map((h: any) => (
                 <li style={`padding-left: ${(h.depth - 1) * 12}px; margin-bottom: 2px;`}>
-                  <a 
-                    href={`#${h.slug}`} 
-                    style="color: #444; text-decoration: none; display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" 
-                    onmouseover="this.style.color='#1e5799'; this.style.textDecoration='underline';" 
-                    onmouseout="this.style.color='#444'; this.style.textDecoration='none';"
-                    title={h.text}
-                  >
+                  <a href={`#${h.slug}`} style="color: #444; text-decoration: none; display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" onmouseover="this.style.color='#1e5799'; this.style.textDecoration='underline';" onmouseout="this.style.color='#444'; this.style.textDecoration='none';" title={h.text}>
                     {h.text}
                   </a>
                 </li>
