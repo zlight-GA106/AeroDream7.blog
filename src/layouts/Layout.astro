@@ -31,8 +31,98 @@ const formattedWordCount = totalWordCount > 10000
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title}</title>
   <link rel="stylesheet" href="/css/7.css/dist/7.css">
+  
+  <style>
+    /* ================= 核心响应式布局魔法 ================= */
+    /* 默认电脑端布局：三栏弹性盒子 */
+    #aero-workspace {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      max-width: 1200px; /* 限制最大宽度，大屏更好看 */
+      margin: 0 auto;
+      padding: 20px 10px;
+    }
+    
+    .sidebar-left, .sidebar-right {
+      width: 260px; /* 固定侧边栏宽度 */
+      flex-shrink: 0;
+    }
+    
+    .main-content {
+      flex: 1;
+      min-width: 0; /* 防止长代码块撑破容器 */
+    }
+
+    /* 移动端顶栏在电脑端默认隐藏 */
+    .mobile-top-nav {
+      display: none;
+    }
+
+    /* 当屏幕宽度小于 950px 时（窄屏/手机），触发大变形！ */
+    @media (max-width: 950px) {
+      body {
+        padding-top: 50px; /* 给悬浮在顶部的导航条让出空间 */
+      }
+      #aero-workspace {
+        flex-direction: column; /* 改为垂直堆叠 */
+        padding: 10px;
+        gap: 15px;
+      }
+      /* 斩断羁绊：隐藏笨重的左右侧边栏 */
+      .sidebar-left, .sidebar-right {
+        display: none !important; 
+      }
+      /* 主内容区霸占 100% 宽度 */
+      .main-content {
+        width: 100%;
+      }
+      /* 召唤移动端专属的悬浮顶栏 */
+      .mobile-top-nav {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      }
+    }
+  </style>
 </head>
 <body>
+
+  <nav class="mobile-top-nav window glass-panel" style="border-radius: 0; border-width: 0 0 1px 0; margin: 0;">
+    <div class="window-body" style="margin: 0; padding: 4px 10px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(225,240,250,0.8)); backdrop-filter: blur(10px);">
+      
+      <a href="/" style="display: flex; align-items: center; gap: 6px; text-decoration: none; color: #003366; font-weight: bold; font-family: 'Segoe UI', Tahoma; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40%;">
+        <img src="/icon/054.png" style="width: 20px; height: 20px; flex-shrink: 0;"> 
+        <span style="overflow: hidden; text-overflow: ellipsis;">紫光的现代小窝</span>
+      </a>
+
+      <div style="display: flex; gap: 2px;">
+         <a href="/" class="aero-nav-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
+           <img src="/icon/041.png" style="width: 16px; margin-bottom: 2px;">
+           <span style="font-size: 10px; color: #333; line-height: 1;">主页</span>
+         </a>
+         <a href="/archives" class="aero-nav-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
+           <img src="/icon/022.png" style="width: 16px; margin-bottom: 2px;">
+           <span style="font-size: 10px; color: #333; line-height: 1;">归档</span>
+         </a>
+         <a href="/novels" class="aero-nav-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
+           <img src="/icon/086.png" style="width: 16px; margin-bottom: 2px;">
+           <span style="font-size: 10px; color: #333; line-height: 1;">小说</span>
+         </a>
+         <a href="/about" class="aero-nav-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 6px; text-decoration: none; min-width: 40px;" onclick="document.body.classList.add('is-loading')">
+           <img src="/icon/014.png" style="width: 16px; margin-bottom: 2px;">
+           <span style="font-size: 10px; color: #333; line-height: 1;">关于</span>
+         </a>
+      </div>
+
+    </div>
+  </nav>
+
   <div id="aero-workspace">
     
     <aside class="sidebar-left" style="display: flex; flex-direction: column; gap: 20px;">
@@ -161,13 +251,13 @@ const formattedWordCount = totalWordCount > 10000
       </div>
 
       {showTOC && (
-        <div class="window glass-panel" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+        <div class="window glass-panel" style="display: flex; flex-direction: column; min-height: 0;">
           <div class="title-bar aero-title-bar" style="flex-shrink: 0;">
             <div class="title-bar-text">
               <img src="/icon/086.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 文章目录
             </div>
           </div>
-          <div class="window-body" style="padding: 12px; overflow-y: auto; flex: 1; min-height: 0;">
+          <div class="window-body" style="padding: 12px; overflow-y: auto; min-height: 0;">
             <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; line-height: 2;">
               {headings.map((h: any) => (
                 <li style={`padding-left: ${(h.depth - 1) * 12}px; margin-bottom: 2px;`}>

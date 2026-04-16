@@ -1,0 +1,171 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// ================= 1. 开启 Astro 原生分页引擎 =================
+export async function getStaticPaths({ paginate }: any) {
+  const allPosts = await getCollection('posts');
+  allPosts.sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
+  return paginate(allPosts, { pageSize: 6 });
+}
+
+const { page } = Astro.props;
+
+// ================= 3. 为全局检索保留全量数据 =================
+const allPostsForSearch = await getCollection('posts');
+const postUrls = JSON.stringify(allPostsForSearch.map(post => `/posts/${post.id}`));
+const searchData = JSON.stringify(allPostsForSearch.map(post => ({
+  title: post.data.title || '无标题日志',
+  url: `/posts/${post.id}`
+})));
+
+const formatDate = (dateObj: any) => {
+  if (!dateObj) return '2000-01-01';
+  const d = new Date(dateObj);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+---
+
+<Layout title="系统主页 | AeroDreams">
+  
+  <div class="window glass-panel" style="margin-bottom: 25px;">
+    <div class="title-bar aero-title-bar">
+      <div class="title-bar-text">
+        <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 全局检索
+      </div>
+    </div>
+    <div class="window-body" style="padding: 15px;">
+      <form action="/search" method="get" class="searchbox" style="margin: 0;">
+        <input type="search" name="q" id="search-input" placeholder="输入文章标题或关键字..." required autocomplete="off" />
+        <button type="submit" aria-label="search" id="search-btn" onclick="document.body.classList.add('is-loading')"></button>
+      </form>
+    </div>
+  </div>
+
+  <div class="window glass-panel" style="margin-bottom: 25px; cursor: pointer; transition: transform 0.1s;" id="btn-random-post" data-urls={postUrls}>
+    <div class="window-body" style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to right, rgba(255,255,255,0.8), rgba(255,255,255,0.3)); border-radius: 6px;">
+      <span style="font-weight: bold; color: #1e5799; font-size: 15px;">
+        <img src="/icon/041.png" style="width: 18px; vertical-align: middle; margin-right: 8px;"> 随机挑选一篇文章
+      </span>
+      <span style="color: #666; font-weight: bold;">></span>
+    </div>
+  </div>
+
+  {page.data.map((post: any) => {
+    const wordCount = post.body ? post.body.replace(/\s/g, '').length : 0;
+    const readTime = Math.max(1, Math.ceil(wordCount / 400));
+    return (
+      <article class="window glass-panel" style="margin-bottom: 30px;">
+        <div class="title-bar aero-title-bar" style="position: relative;">
+          <div class="title-bar-text">
+            <img src="/icon/035.png" style="width: 16px; vertical-align: middle; margin-right: 5px;">
+            <a href={`/posts/${post.id}`} style="color: inherit; text-decoration: none;" class="article-link">{post.data.title}</a>
+          </div>
+          <div role="tooltip" class="is-bottom is-left aero-balloon">{post.data.title}</div>
+          <div class="title-bar-controls">
+            <button aria-label="Minimize" disabled></button>
+            <button aria-label="Maximize" class="btn-mobile-view" title="强制切换手机视图"></button>
+            <button aria-label="Close" class="btn-desktop-view" title="恢复电脑视图"></button>
+          </div>
+        </div>
+        <div class="window-body article-body" style="padding: 20px;">
+          <div style="display: flex; gap: 10px; font-size: 12px; color: #333; flex-wrap: wrap; align-items: center; margin-bottom: 15px;">
+            <span class="aero-badge"><img src="/icon/035.png" style="width: 14px; margin-right: 6px; display: block;">{formatDate(post.data.date)}</span>
+            <span class="aero-badge"><img src="/icon/017.png" style="width: 14px; margin-right: 6px; display: block;">{post.data.tags ? post.data.tags[0] : '未分类'}</span>
+            <span class="aero-badge"><img src="/icon/086.png" style="width: 14px; margin-right: 6px; display: block;">日志片段</span>
+          </div>
+          <div style="margin-bottom: 20px; color: #444; line-height: 1.6; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 15px;">
+            {post.data.description || "该系统日志暂无摘要，请点击右下方按钮查看详细内容..."}
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 12px; color: #888;">{wordCount} 字 &nbsp;|&nbsp; {readTime} 分钟</div>
+            <a href={`/posts/${post.id}`} class="aero-nav-btn article-link" style="padding: 6px 18px; font-size: 12px;">详细阅读</a>
+          </div>
+        </div>
+      </article>
+    );
+  })}
+
+  {page.lastPage > 1 && (
+    <div class="window glass-panel" style="margin-bottom: 30px;">
+      <div class="title-bar aero-title-bar">
+        <div class="title-bar-text">
+          <img src="/icon/071.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 页面导航 ({page.currentPage} / {page.lastPage})
+        </div>
+      </div>
+      
+      <div class="window-body" style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: #f0f0f0;">
+        
+        <div style="display: flex; gap: 8px;">
+          {page.url.prev ? (
+            <button onclick={`window.location.href='${page.url.prev}'`} style="min-width: 80px; font-family: 'Segoe UI', Tahoma;">上一页</button>
+          ) : (
+            <button disabled style="min-width: 80px; font-family: 'Segoe UI', Tahoma;">上一页</button>
+          )}
+
+          {page.url.next ? (
+            <button onclick={`window.location.href='${page.url.next}'`} style="min-width: 80px; font-family: 'Segoe UI', Tahoma;">下一页</button>
+          ) : (
+            <button disabled style="min-width: 80px; font-family: 'Segoe UI', Tahoma;">下一页</button>
+          )}
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #333;">
+          <span>跳转到</span>
+          <input 
+            type="number" 
+            id="jump-page-input" 
+            min="1" 
+            max={page.lastPage} 
+            style="width: 45px; text-align: center; font-family: 'Segoe UI', Tahoma; padding: 2px;"
+            value={page.currentPage}
+          />
+          <span>页</span>
+          <button id="jump-page-btn" style="min-width: 45px; font-family: 'Segoe UI', Tahoma; margin-left: 5px;">跳转</button>
+        </div>
+
+      </div>
+    </div>
+  )}
+  <div id="search-db" data-search={searchData} style="display: none;"></div>
+
+  <script define:vars={{ maxPage: page.lastPage }}>
+    document.addEventListener('DOMContentLoaded', () => {
+      const jumpBtn = document.getElementById('jump-page-btn');
+      const jumpInput = document.getElementById('jump-page-input');
+
+      if (jumpBtn && jumpInput) {
+        const executeJump = () => {
+          let targetPage = parseInt(jumpInput.value);
+          // 容错处理：确保输入合法
+          if (isNaN(targetPage) || targetPage < 1) targetPage = 1;
+          if (targetPage > maxPage) targetPage = maxPage;
+          
+          document.body.classList.add('is-loading');
+          
+          // Astro 的分页路由逻辑：第一页是根路径 '/'，其他是 '/2', '/3'等
+          if (targetPage === 1) {
+            window.location.href = '/';
+          } else {
+            window.location.href = `/${targetPage}`;
+          }
+        };
+
+        // 点击按钮执行跳转
+        jumpBtn.addEventListener('click', executeJump);
+        
+        // 在输入框内按回车键也能执行跳转
+        jumpInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            executeJump();
+          }
+        });
+      }
+    });
+  </script>
+
+</Layout>
