@@ -37,6 +37,22 @@ const getPaginationGroup = (current: number, last: number) => {
 };
 const paginationGroup = getPaginationGroup(page.currentPage, page.lastPage);
 // =========================================================
+
+// ================= 4. 标签图标哈希映射算法 =================
+const getTagIcon = (str: string) => {
+  if (!str) return '017'; // 如果没文字，返回默认图标
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const num = (Math.abs(hash) % 533) + 1; // 限制在 1 到 533 之间
+  
+  // ⚠️ 重点：因为你之前用的图标是 "041.png"、"017.png" 这种三位补零格式，
+  // 所以我加了 padStart。如果你的文件名字真的就是 "1.png" 到 "533.png" (没有前面的0)，
+  // 请把下面的 `.padStart(3, '0')` 删掉！
+  return String(num).padStart(3, '0');
+};
+// =========================================================
 ---
 
 <style>
@@ -64,7 +80,6 @@ const paginationGroup = getPaginationGroup(page.currentPage, page.lastPage);
 </style>
 
 <Layout title="嘿！这里是紫光的现代小窝">
-
   
   <div class="window glass-panel" style="margin-bottom: 25px;">
     <div class="title-bar aero-title-bar">
@@ -92,11 +107,15 @@ const paginationGroup = getPaginationGroup(page.currentPage, page.lastPage);
   {page.data.map((post: any) => {
     const wordCount = post.body ? post.body.replace(/\s/g, '').length : 0;
     const readTime = Math.max(1, Math.ceil(wordCount / 400));
+    
+    // 只保留日期的提前计算
+    const dateStr = formatDate(post.data.date);
+
     return (
       <article class="window glass-panel" style="margin-bottom: 30px;">
         <div class="title-bar aero-title-bar" style="position: relative;">
           <div class="title-bar-text">
-            <img src="/icon/035.png" style="width: 16px; vertical-align: middle; margin-right: 5px;">
+            <img src={`/icon/${getTagIcon(post.data.title)}.png`} style="width: 16px; vertical-align: middle; margin-right: 5px;">
             <a href={`/posts/${post.id}`} style="color: inherit; text-decoration: none;" class="article-link">{post.data.title}</a>
           </div>
           <div role="tooltip" class="is-bottom is-left aero-balloon">{post.data.title}</div>
@@ -108,9 +127,26 @@ const paginationGroup = getPaginationGroup(page.currentPage, page.lastPage);
         </div>
         <div class="window-body article-body" style="padding: 20px;">
           <div style="display: flex; gap: 10px; font-size: 12px; color: #333; flex-wrap: wrap; align-items: center; margin-bottom: 15px;">
-            <span class="aero-badge"><img src="/icon/035.png" style="width: 14px; margin-right: 6px; display: block;">{formatDate(post.data.date)}</span>
-            <span class="aero-badge"><img src="/icon/017.png" style="width: 14px; margin-right: 6px; display: block;">{post.data.tags ? post.data.tags[0] : '未分类'}</span>
-            <span class="aero-badge"><img src="/icon/086.png" style="width: 14px; margin-right: 6px; display: block;">日志片段</span>
+            
+            <span class="aero-badge">
+              <img src={`/icon/${getTagIcon(dateStr)}.png`} style="width: 14px; margin-right: 6px; display: block;">
+              {dateStr}
+            </span>
+            
+            {post.data.tags && post.data.tags.map((tag: string) => (
+              <span class="aero-badge">
+                <img src={`/icon/${getTagIcon(tag)}.png`} style="width: 14px; margin-right: 6px; display: block;">
+                {tag}
+              </span>
+            ))}
+
+            {(!post.data.tags || post.data.tags.length === 0) && (
+              <span class="aero-badge">
+                <img src="/icon/017.png" style="width: 14px; margin-right: 6px; display: block;">
+                未分类
+              </span>
+            )}
+            
           </div>
           <div style="margin-bottom: 20px; color: #444; line-height: 1.6; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 15px;">
             {post.data.description || "该系统日志暂无摘要，请点击右下方按钮查看详细内容..."}

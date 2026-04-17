@@ -28,8 +28,8 @@ const searchDataObj = allPosts.map(post => ({
   <div class="window glass-panel">
     <div class="title-bar aero-title-bar">
       <div class="title-bar-text">
-        <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
-        搜索主题 (Search Results)
+        <img src="/icon/206.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 
+        搜索主题
       </div>
     </div>
     
@@ -100,7 +100,7 @@ const searchDataObj = allPosts.map(post => ({
         // ================= 渲染结果 =================
         if (results.length > 0) {
           statusText.innerHTML = `
-            <img src="/icon/028.png" style="width: 14px; vertical-align: middle; margin-right: 5px;">
+            <img src="/icon/210.png" style="width: 14px; vertical-align: middle; margin-right: 5px;">
             <b>检索完成：</b> 标题含 <span style="color: #d9534f; font-weight:bold;">${query}</span> ，共匹配到 <b>${results.length}</b> 篇文章。
           `;
           
@@ -168,7 +168,7 @@ const searchDataObj = allPosts.map(post => ({
           `;
           container.innerHTML = `
             <div style="text-align: center; padding: 40px 20px; background: rgba(255, 255, 255, 0.4); border: 1px dashed #aebac8; border-radius: 6px;">
-              <img src="/icon/022.png" style="width: 54px; margin-bottom: 15px; opacity: 0.8;">
+              <img src="/icon/262.png" style="width: 54px; margin-bottom: 15px; opacity: 0.8;">
               <h3 style="color: #444; margin-bottom: 10px;">本站似乎没有这个内容呢......</h3>
               <p style="color: #777; font-size: 13px;">尝试精简关键字，或者点击右上方 <a href="/" style="color: #1e5799; text-decoration: none; font-weight: bold;" onclick="document.body.classList.add('is-loading')">回到主页</a> 逛逛吧！</p>
             </div>
