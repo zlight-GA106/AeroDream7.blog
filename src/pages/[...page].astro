@@ -63,12 +63,13 @@ const paginationGroup = getPaginationGroup(page.currentPage, page.lastPage);
   }
 </style>
 
-<Layout title="系统主页 | AeroDreams">
+<Layout title="嘿！这里是紫光的现代小窝">
+
   
   <div class="window glass-panel" style="margin-bottom: 25px;">
     <div class="title-bar aero-title-bar">
       <div class="title-bar-text">
-        <img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 全局检索
+        <img src="/icon/098.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 全局检索
       </div>
     </div>
     <div class="window-body" style="padding: 15px;">
@@ -170,7 +171,7 @@ const paginationGroup = getPaginationGroup(page.currentPage, page.lastPage);
         </div>
 
         <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #333;">
-          <span>跳转到 (</span>
+          <span>跳转到第 </span>
           <input 
             type="number" 
             id="jump-page-input" 
@@ -179,7 +180,7 @@ const paginationGroup = getPaginationGroup(page.currentPage, page.lastPage);
             value={page.currentPage} 
             style="width: 45px; margin: 0; padding: 2px;" 
           />
-          <span>) 页</span>
+          <span> 页</span>
           <button id="jump-page-btn" class="aero-page-btn" style="min-width: 40px; padding: 0 8px;">跳转</button>
         </div>
 

@@ -31,10 +31,10 @@ const isNavActive = (path: string) => {
 };
 
 const navItems = [
-  { path: '/', icon: '041.png', label: '主页', mobileLabel: '主页' },
-  { path: '/archives', icon: '022.png', label: '文章归档', mobileLabel: '归档' },
-  { path: '/about', icon: '014.png', label: '关于本站', mobileLabel: '关于' },
-  { path: '/novels', icon: '086.png', label: '随手写的小说', mobileLabel: '小说' }
+  { path: '/', icon: '183.png', label: '主页', mobileLabel: '主页' },
+  { path: '/archives', icon: '011.png', label: '文章归档', mobileLabel: '归档' },
+  { path: '/about', icon: '291.png', label: '关于本站', mobileLabel: '关于' },
+  { path: '/novels', icon: '215.png', label: '随手写的小说', mobileLabel: '小说' }
 ];
 ---
 
@@ -44,6 +44,8 @@ const navItems = [
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title}</title>
+
+  <link rel="icon" href="/images/bwolf.png" type="image/jpeg" />
   <link rel="stylesheet" href="/css/7.css/dist/7.css">
   
   <style>
@@ -74,7 +76,7 @@ const navItems = [
   <nav class="mobile-top-nav window glass-panel" style="border-radius: 0; border-width: 0 0 1px 0; margin: 0;">
     <div class="window-body" style="margin: 0; padding: 4px 10px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(225,240,250,0.8)); backdrop-filter: blur(10px);">
       <a href="/" style="display: flex; align-items: center; gap: 6px; text-decoration: none; color: #003366; font-weight: bold; font-family: 'Segoe UI', Tahoma; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40%;">
-        <img src="/icon/054.png" style="width: 20px; height: 20px; flex-shrink: 0;"> 
+        <img src="/images/bcat.jpg" style="width: 20px; height: 20px; flex-shrink: 0; object-fit: cover;"> 
         <span style="overflow: hidden; text-overflow: ellipsis;">紫光的现代小窝</span>
       </a>
       <div style="display: flex; gap: 2px;">
@@ -92,12 +94,12 @@ const navItems = [
     
     <aside class="sidebar-left" style="display: flex; flex-direction: column; gap: 20px;">
       <div class="window glass-panel">
-        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/014.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 关于站长</div></div>
+        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/177.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 关于站长</div></div>
         <div class="window-body" style="padding: 15px; text-align: center;">
           <a href="/about" style="display: inline-block; text-decoration: none;" onclick="document.body.classList.add('is-loading')">
-            <div class="win7-avatar-frame" title="点击查看「关于本站」"><div class="avatar-inner"><img src="/icon/054.png" alt="User Avatar"></div></div>
+            <div class="win7-avatar-frame" title="点击查看「关于本站」"><div class="avatar-inner"><img src="/images/bcat.jpg" alt="User Avatar"></div></div>
           </a>
-          <h3 style="margin: 5px 0; color: #003366; font-family: 'Segoe UI', Tahoma;">zlight106</h3>
+          <h3 style="margin: 5px 0; color: #003366; font-family: 'Segoe UI', Tahoma;">紫光_zlight106</h3>
           <p style="font-size: 11px; color: #555; margin: 5px 0 15px 0; border-top: 1px dashed #ccc; padding-top: 8px; line-height: 1.6; text-wrap: balance; word-break: keep-all;">业余计算机爱好者 / 硬件 DIY / furry / 赛博拾荒者 / 偶尔写写小说</p>
           <div style="display: flex; gap: 8px; justify-content: center;">
             <a href="https://github.com/zlight106" target="_blank" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">源代码</a>
@@ -107,7 +109,7 @@ const navItems = [
       </div>
 
       <div class="window glass-panel">
-        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/071.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点统计</div></div>
+        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/074.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点统计</div></div>
         <div class="window-body" style="padding: 15px;">
           <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; color: #333;">
             <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>归档总数:</span><span style="font-weight: bold; color: #1e5799;">{postCount} 篇</span></li>
@@ -119,7 +121,7 @@ const navItems = [
       </div>
 
       <div class="window glass-panel">
-        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/017.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 标签</div></div>
+        <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/015.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 标签</div></div>
         <div class="window-body" style="padding: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
           {tags.map((tag) => <a href="#" class="aero-badge" style="text-decoration: none; color: #333; font-size: 11px;">{tag as string}</a>)}
         </div>
@@ -130,8 +132,8 @@ const navItems = [
       <slot />
 
       <footer style="margin-top: 60px; padding: 20px; background: linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(255,255,255,0.2)); border: 1px solid rgba(255,255,255,0.7); border-top: 1px solid #c4d5e6; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 2px 5px rgba(0,0,0,0.05); color: #555; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-shadow: 0 1px 0 #fff;">
-        <div style="display: flex; align-items: center; justify-content: center;"><img src="/icon/014.png" style="width: 14px; margin-right: 6px; opacity: 0.8; vertical-align: middle;"><span>&copy; 2024-2026 <b>zlight106</b> 版权所有</span></div>
-        <div style="display: flex; align-items: center; justify-content: center;"><img src="/icon/028.png" style="width: 14px; margin-right: 6px; opacity: 0.8; vertical-align: middle;"><span>自豪地使用 <a href="/" style="color: #1e5799; font-weight: bold; font-family: 'Segoe UI', Tahoma, sans-serif; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">AeroDream7</a> 主题</span></div>
+        <div style="display: flex; align-items: center; justify-content: center;"><span>&copy; 2024-2026 <b>紫光_zlight106</b> 版权所有</span></div>
+        <div style="display: flex; align-items: center; justify-content: center;"><span>编写并使用了 <a href="/" style="color: #1e5799; font-weight: bold; font-family: 'Segoe UI', Tahoma, sans-serif; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">AeroDream7</a> 主题</span></div>
       </footer>
     </main>
 
@@ -139,13 +141,13 @@ const navItems = [
       
       <div style="flex-shrink: 0; padding: 12px 10px; background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(225, 240, 250, 0.6)); border: 1px solid #8cb6d9; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(255,255,255,1), 0 2px 4px rgba(0,0,0,0.05); text-align: center; backdrop-filter: blur(4px);">
         <h2 style="font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; font-size: 16px; font-weight: bold; color: #003366; text-shadow: 0 1px 0 #fff; margin: 0; display: flex; align-items: center; justify-content: center; gap: 6px;">
-          <img src="/icon/041.png" style="width: 18px; margin: 0; padding: 0;"> 紫光的现代小窝
+          <img src="/images/bwolf.png" style="width: 18px; margin: 0; padding: 0;"> 紫光的现代小窝
         </h2>
       </div>
 
       <div class="window glass-panel" style="flex-shrink: 0;">
         <div class="title-bar aero-title-bar">
-          <div class="title-bar-text"><img src="/icon/068.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点索引</div>
+          <div class="title-bar-text"><img src="/icon/290.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点索引</div>
           <div class="title-bar-controls">
             <button aria-label="Minimize" title="折叠索引" onclick="document.getElementById('site-index-body').style.display='none'"></button>
             <button aria-label="Maximize" title="展开索引" onclick="document.getElementById('site-index-body').style.display='flex'"></button>
