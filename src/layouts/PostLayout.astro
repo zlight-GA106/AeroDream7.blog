@@ -18,11 +18,11 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
 ---
 
 <style is:global>
-  /* ================= 1. 彻底清除多余元素 ================= */
+  /* ================= 1. 彻底清除多余元素 (含登录和取消回复) ================= */
   #waline .wl-empty, #waline .wl-rss, 
   #waline .wl-power, #waline .wl-meta-head, #waline .wl-actions, 
   #waline .wl-word-count, #waline .wl-text-number,
-  #waline .wl-close{
+  #waline .wl-close, #waline .wl-login {
     display: none !important;
   }
 
@@ -40,26 +40,16 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
     box-shadow: none !important; 
   }
 
-  /* ================= 3. 头部输入区 ================= */
+  /* ================= 3. 输入框与编辑器 (7.css 标准) ================= */
   #waline .wl-header {
     display: flex !important;
     gap: 8px !important;
     border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
     margin: 0 0 10px 0 !important;
-    align-items: stretch !important;
-  }
-
-  #waline .wl-header-item { 
-    flex: 1 !important; 
-    padding: 0 !important; 
-    border: none !important; 
   }
 
   #waline .wl-header-item label { display: none !important; }
 
-  /* 输入框样式 (纯正 7.css) */
   #waline .wl-header-item input,
   #waline .wl-editor {
     width: 100% !important;
@@ -69,24 +59,13 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
     padding: 5px 8px !important;
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
     background: #fff !important;
-    color: #333 !important;
-    font-family: 'Segoe UI', Tahoma, sans-serif !important;
     font-size: 12px !important;
     outline: none !important;
   }
 
-  #waline .wl-editor { 
-    min-height: 100px !important; 
-    resize: vertical !important;
-    margin: 0 !important; 
-    display: block !important; 
-  }
-
-  #waline .wl-header-item input:hover, 
-  #waline .wl-editor:hover { border-color: #7eb4ea !important; }
-
-  #waline .wl-header-item input:focus, 
-  #waline .wl-editor:focus {
+  #waline .wl-editor { min-height: 100px !important; resize: vertical !important; }
+  #waline .wl-header-item input:hover, #waline .wl-editor:hover { border-color: #7eb4ea !important; }
+  #waline .wl-header-item input:focus, #waline .wl-editor:focus {
     border-color: #569de5 !important;
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.1), 0 0 3px rgba(86,157,229,0.4) !important;
   }
@@ -94,23 +73,13 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
   /* ================= 4. 底部按钮区 (发送/刷新) ================= */
   #waline .wl-footer {
     margin: 10px 0 0 0 !important;
-    padding: 0 !important;
     display: flex !important;
     justify-content: space-between !important; 
     align-items: center !important;
     border: none !important;
   }
 
-  #waline .wl-info {
-    display: flex !important;
-    gap: 8px !important;
-    align-items: center !important;
-    margin-left: auto !important; 
-  }
-
-  /* 主按钮样式 (7.css) */
-  #waline .wl-btn, 
-  #waline .wl-refresh {
+  #waline .wl-btn, #waline .wl-refresh {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
@@ -120,117 +89,89 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8) !important;
     padding: 3px 15px !important;
     color: #333 !important;
-    font-family: 'Segoe UI', Tahoma, sans-serif !important;
     font-size: 12px !important;
     cursor: pointer !important;
-    min-width: 75px !important;
     height: 24px !important;
-    margin: 0 !important;
   }
 
-  #waline .wl-refresh {
-    margin-right: auto !important;
-  }
-
-  #waline .wl-btn:hover, 
-  #waline .wl-refresh:hover {
+  #waline .wl-btn:hover, #waline .wl-refresh:hover {
     background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%) !important;
     border-color: #3c7fb1 !important;
   }
 
-  #waline .wl-btn:active, 
-  #waline .wl-refresh:active {
-    background: linear-gradient(to bottom, #e5f4fc 0%, #c4e5f6 49%, #98d1ef 50%, #68b3db 100%) !important;
-    border-color: #2c628b !important;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2) !important;
-  }
-
-  /* ================= 5. 评论展示区 (Win7 深度定制) ================= */
-  
-  /* 列表容器 */
+  /* ================= 5. 评论内容展示区 ================= */
   #waline .wl-cards {
     margin-top: 25px !important;
     padding-top: 15px !important;
-    border-top: 1px solid #c4d5e6 !important; /* 顶部分割线 */
+    border-top: 1px solid #c4d5e6 !important; 
   }
 
-  /* 单个评论条目 */
-  #waline .wl-card-item {
-    padding: 12px 0 !important;
-    border-bottom: 1px dashed #ccc !important;
-    margin: 0 !important;
-  }
-  #waline .wl-card-item:last-child {
-    border-bottom: none !important;
-  }
+  #waline .wl-card-item { padding: 12px 0 !important; border-bottom: 1px dashed #ccc !important; }
 
-  /* 头像：强制方形，加入经典边框和内发光 */
   #waline .wl-user img {
     border-radius: 2px !important;
     border: 1px solid #abadb3 !important;
     padding: 2px !important;
     background: #fff !important;
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.1) !important;
   }
 
-  /* 用户名 */
-  #waline .wl-nick {
-    color: #003366 !important;
-    font-weight: bold !important;
-    font-size: 13px !important;
-  }
+  #waline .wl-nick { color: #003366 !important; font-weight: bold !important; }
 
-  /* 身份标识徽章 (博主等) - 仿系统标签 */
-  #waline .wl-badge {
-    background: #e4effa !important;
-    border: 1px solid #70c0e7 !important;
-    color: #003366 !important;
-    border-radius: 2px !important;
-    padding: 1px 4px !important;
-    font-size: 10px !important;
-    box-shadow: none !important;
-  }
-
-  /* 浏览器/系统信息 - 仿经典灰字 */
-  #waline .wl-sys-badge {
-    background: transparent !important;
-    border: none !important;
-    color: #888 !important;
-    font-size: 11px !important;
-  }
-
-  /* 评论内容文字 */
-  #waline .wl-content {
-    color: #333 !important;
-    font-size: 13px !important;
-    line-height: 1.6 !important;
-    margin-top: 5px !important;
-    padding-left: 0 !important;
-  }
-
-  /* 回复/点赞 按钮：重塑为 Win7 小按钮 */
+  /* ================= 6. 终极净化：点赞/回复 (PNG 图标版) ================= */
   #waline .wl-action {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
     margin-top: 8px !important;
   }
+
   #waline .wl-action button {
-    background: linear-gradient(to bottom, #f2f2f2 0%, #ebebeb 49%, #dddddd 50%, #cfcfcf 100%) !important;
+    all: unset !important; 
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    min-width: 50px !important;
+    height: 23px !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+    color: #333 !important;
+    cursor: pointer !important;
+    background: linear-gradient(180deg, #f2f2f2 0%, #ebebeb 49%, #dddddd 50%, #cfcfcf 100%) !important;
     border: 1px solid #707070 !important;
     border-radius: 3px !important;
-    padding: 1px 8px !important;
-    color: #333 !important;
-    font-size: 11px !important;
-    cursor: pointer !important;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8) !important;
-  }
-  #waline .wl-action button:hover {
-    background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%) !important;
-    border-color: #3c7fb1 !important;
-  }
-  #waline .wl-action button svg {
-    display: none !important; /* 隐藏现代风的 SVG 图标，纯文字更清爽 */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8) !important;
   }
 
-  
+  #waline .wl-action button:hover {
+    background: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%) !important;
+    border-color: #3c7fb1 !important;
+  }
+
+  /* 物理隐藏所有现代 SVG 矢量图，防止重叠 */
+  #waline .wl-action svg, #waline .wl-like svg, #waline .wl-reply svg { 
+    display: none !important; 
+  }
+
+  /* 注入 PNG 图标 */
+  #waline .wl-like::before,
+  #waline .wl-reply::before {
+    content: '' !important; 
+    display: inline-block !important;
+    width: 14px !important; 
+    height: 14px !important;
+    margin-right: 4px !important; 
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    vertical-align: -2px !important; 
+  }
+
+  #waline .wl-like::before { background-image: url('/images/wheart.png') !important; }
+  #waline .wl-like.active::before { background-image: url('/images/rheart.png') !important; }
+  #waline .wl-reply::before { background-image: url('/images/guestbook.png') !important; }
+
+  #waline .wl-like.active { color: #b30000 !important; font-weight: bold !important; }
 </style>
 
 <Layout title={title + " | AeroDreams"} showTOC={showTOC} headings={headings}>
@@ -243,10 +184,22 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
         <button aria-label="Close" class="btn-desktop-view"></button>
       </div>
     </div>
+    
     <div class="window-body article-body" style="padding: 20px;">
       <div style="color: #666; font-size: 11px; margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">创建时间: {pubDateString}</div>
+
+      {/* 经典的 Win7 信息提示条 (已加入动态天数 ID) */}
+      {showWarning && (
+        <div style="background: linear-gradient(to bottom, #ffffe9 0%, #fffdc9 100%); border: 1px solid #dfc778; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
+          <span style="font-size: 16px; margin-right: 8px;">💡</span>
+          <div>
+            <strong>时效性提示：</strong>本文写于 <strong id="dynamic-days" data-date={pubDateString}>{diffDays}</strong> 天前。文中的配置或技术可能已发生变化，请注意甄别。
+          </div>
+        </div>
+      )}
+
       <main class="article-content" style="line-height: 1.8; color: #333;"><slot /></main>
-      </div>
+    </div>
   </article>
 
   <div class="window glass-panel" style="margin-bottom: 30px;">
@@ -268,7 +221,6 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
         search: false, emoji: false, imageUploader: false 
       });
 
-      // 核心手术：DOM 搬运工
       const observer = new MutationObserver(() => {
         const nick = document.querySelector('.wl-header-item input[name="nick"]');
         const mail = document.querySelector('.wl-header-item input[name="mail"]');
@@ -276,21 +228,37 @@ const showTOC = !isNovel && !isAboutPage && headings.length > 0;
         const footerInfo = document.querySelector('#waline .wl-info');
         const refreshBtn = document.querySelector('#waline .wl-refresh');
 
-        // 1. 注入 Placeholder
         if (nick && !nick.placeholder) {
           nick.placeholder = '昵称 (必填)';
           if (mail) mail.placeholder = '邮箱 (必填)';
           if (link) link.placeholder = '个人网址 (选填)';
         }
 
-        // 2. 物理移位：强制把刷新按钮塞进 Footer 的按钮组里
         if (footerInfo && refreshBtn && refreshBtn.parentNode !== footerInfo) {
-          // 清除刷新按钮自带的 innerHTML 干扰，只留文字
           refreshBtn.innerHTML = '刷新'; 
           footerInfo.prepend(refreshBtn);
         }
       });
       observer.observe(document.getElementById('waline'), { childList: true, subtree: true });
+    });
+  </script>
+
+  {/*  新增：客户端动态计算时效脚本  */}
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const daysElement = document.getElementById('dynamic-days');
+      if (daysElement) {
+        const pubDateStr = daysElement.getAttribute('data-date');
+        const pubDate = new Date(pubDateStr);
+        const today = new Date();
+        
+        // 计算真实的毫秒差并转为天数
+        const diffTime = Math.abs(today - pubDate);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        // 更新数字
+        daysElement.innerText = diffDays;
+      }
     });
   </script>
 </Layout>

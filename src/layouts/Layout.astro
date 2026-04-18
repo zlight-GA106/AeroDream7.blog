@@ -30,12 +30,20 @@ const isNavActive = (path: string) => {
   return currentPath.startsWith(path);
 };
 
+//导航数组（已包含友情链接 + 留言板）
 const navItems = [
   { path: '/', icon: '183.png', label: '主页', mobileLabel: '主页' },
   { path: '/archives', icon: '011.png', label: '文章归档', mobileLabel: '归档' },
   { path: '/about', icon: '291.png', label: '关于本站', mobileLabel: '关于' },
-  { path: '/novels', icon: '159.png', label: '随手写的小说', mobileLabel: '小说' }
+  { path: '/novels', icon: '159.png', label: '随手写的小说', mobileLabel: '小说' },
+  { path: '/friends', icon: '112.png', label: '友情链接', mobileLabel: '友链' },
+  { path: '/guestbook', icon: '014.png', label: '留言板', mobileLabel: '留言' }
 ];
+
+// 自动扫描 wallpaper 文件夹下的所有主流图片格式
+const wallpaperFiles = import.meta.glob('/public/images/wallpaper/*.{jpg,jpeg,png,webp}');
+// 将 /public 路径去掉，转换为浏览器可以访问的绝对路径数组
+const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => path.replace('/public', '')));
 ---
 
 <!DOCTYPE html>
@@ -47,8 +55,24 @@ const navItems = [
 
   <link rel="icon" href="/images/bwolf.png" type="image/jpeg" />
   <link rel="stylesheet" href="/css/7.css/dist/7.css">
+
+  <script is:inline>
+    const savedBg = sessionStorage.getItem('aero_current_bg');
+    if (savedBg) {
+      document.documentElement.style.setProperty('--aero-bg', `url('${savedBg}')`);
+    }
+  </script>
   
   <style>
+    body {
+      background-image: var(--aero-bg, url('/images/wallpaper/img36_vista.jpg'));
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      transition: background-image 0.5s ease-in-out; 
+    }
+
     #aero-workspace { display: flex; justify-content: center; align-items: flex-start; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 20px 10px; }
     .sidebar-left, .sidebar-right { width: 260px; flex-shrink: 0; }
     .main-content { flex: 1; min-width: 0; }
@@ -160,6 +184,12 @@ const navItems = [
               <span>{item.label}</span>
             </a>
           ))}
+          
+          <a class="aero-nav-btn" id="btn-random-wallpaper" data-wallpapers={wallpaperPaths} style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 6px; margin-top: 4px; cursor: pointer;">
+            <img src="/icon/041.png" style="width: 14px; margin: 0; padding: 0;">
+            <span>随机换壁纸</span>
+          </a>
+          
         </div>
       </div>
 
@@ -188,5 +218,32 @@ const navItems = [
   </div>
   
   <script src="../scripts/main.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('btn-random-wallpaper');
+      if (btn) {
+        const wallpapers = JSON.parse(btn.dataset.wallpapers);
+        
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          document.body.classList.remove('is-loading');
+
+          if (wallpapers.length === 0) {
+            alert("壁纸库为空！请确认图片已经放进 /public/images/wallpaper 目录。");
+            return;
+          }
+          
+          const randomBg = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+          
+          document.documentElement.style.setProperty('--aero-bg', `url('${randomBg}')`);
+          sessionStorage.setItem('aero_current_bg', randomBg);
+          
+          setTimeout(() => document.body.classList.remove('is-loading'), 50);
+        });
+      }
+    });
+  </script>
 </body>
 </html>
