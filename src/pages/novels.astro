@@ -36,7 +36,7 @@ const getSimulatedFileSize = (text: string) => {
     
     <div class="title-bar aero-title-bar">
       <div class="title-bar-text">
-        <img src="/icon/215.png" style="width: 16px; margin-right: 4px; vertical-align: middle;"> 随手写的小说
+        <img src="/icon/159.png" style="width: 16px; margin-right: 4px; vertical-align: middle;"> 随手写的小说
       </div>
       <div class="title-bar-controls">
         <button aria-label="Minimize" disabled></button>
@@ -58,7 +58,7 @@ const getSimulatedFileSize = (text: string) => {
         
         {Object.keys(groupedPosts).length === 0 ? (
           <div style="text-align: center; padding: 40px; color: #999; font-size: 13px;">
-            <img src="/icon/215.png" style="width: 32px; margin-bottom: 10px; opacity: 0.5;"><br>
+            <img src="/icon/159.png" style="width: 32px; margin-bottom: 10px; opacity: 0.5;"><br>
             暂无小说归档，快去灵感库写点什么吧！
           </div>
         ) : (
@@ -81,7 +81,7 @@ const getSimulatedFileSize = (text: string) => {
                   return (
                     <a href={`/posts/${post.id}`} class="archive-list-item" style="display: flex; align-items: center; text-decoration: none; color: #222; font-size: 12px; padding: 4px 10px; border: 1px solid transparent; transition: all 0.1s;" onclick="document.body.classList.add('is-loading')">
                       <div style="flex: 5; display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding-right: 10px;">
-                        <img src="/icon/215.png" style="width: 16px; flex-shrink: 0;">
+                        <img src="/icon/159.png" style="width: 16px; flex-shrink: 0;">
                         <span style="overflow: hidden; text-overflow: ellipsis; font-weight: bold;">{post.data.title}.md</span>
                       </div>
                       <div style="flex: 2; color: #666; padding-left: 8px;">{formattedDate}</div>
