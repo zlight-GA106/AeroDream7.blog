@@ -1,10 +1,11 @@
 ---
-id: 8
+layout: ../../layouts/PostLayout.astro
 title: "[ROS]基于TR-master和ocr的车牌识别（代码解析）"
-created_at: 2024-9-10T16:23:29Z
-modified_at: 2024-9-10T16:23:29Z
-description: 机器人操作系统学习记录
---- 
+date: "2024-9-10"
+author: "zlight106"
+tags: ["ROS", "OCR", "视觉识别","金砖大赛","智能硬件"]
+description: "2024金砖国家智能硬件大赛关于TR-master和ocr车牌识别的代码学习记录"
+---
 ## 部署和快速上手
 在完成tr的部署后，使用以下命令打开摄像头节点：
 > 只有在打开摄像头节点后rqt图像预览工具才可正常使用

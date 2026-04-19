@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 
 <style is:global>
   /* ========== 留言板净化样式 (保持纯正 Win7 拟物风) ========== */
-  #waline .wl-empty, #waline .wl-rss, #waline .wl-power, #waline .wl-meta-head, #waline .wl-actions, #waline .wl-word-count, #waline .wl-text-number, #waline .wl-close { display: none !important; }
+  #waline .wl-empty, #waline .wl-rss, #waline .wl-power, #waline .wl-meta-head, #waline .wl-actions, #waline .wl-word-count, #waline .wl-text-number, #waline .wl-close, #waline .wl-login { display: none !important; }
   #waline { font-family: 'Segoe UI', Tahoma, sans-serif !important; padding-left: 0 !important; }
   #waline .wl-panel { margin: 0 !important; padding: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; }
   #waline .wl-header { display: flex !important; gap: 8px !important; border: none !important; background: transparent !important; padding: 0 !important; margin: 0 0 10px 0 !important; align-items: stretch !important; }
@@ -67,7 +67,8 @@ import Layout from '../layouts/Layout.astro';
         el: '#waline',
         serverURL: 'https://waline.zlight106.top', 
         search: false, emoji: false, imageUploader: false,
-        path: '/guestbook' // 强制指定路径，这样所有的留言都会归档到 "留言板" 下
+        path: '/guestbook', // 强制指定路径，这样所有的留言都会归档到 "留言板" 下
+        login: 'disable' // 👈 增加这行：彻底在底层配置中禁用登录模块
       });
 
       const observer = new MutationObserver(() => {

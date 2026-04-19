@@ -1,10 +1,11 @@
 ---
-id: 7
-title: "[修复]使用DD命令导致开发板的linux系统无法正常启动"
-created_at: 2024-9-5T22:51:29Z
-modified_at: 2024-9-5T22:51:29Z
-description: 机器人操作系统学习记录
---- 
+layout: ../../layouts/PostLayout.astro
+title: "救砖实录-使用DD命令完整备份系统导致的系统无法启动"
+date: "2024-9-10"
+author: "zlight106"
+tags: ["开发板","LINUX"]
+description: "一场关于DD命令使用不当造成的杯具"
+---
 ## 事故起因
 今天在使用dd命令备份学校的NVIDIA jeston nano开发板系统时遇到了奇怪的问题：在使用dd命令备份系统磁盘固件后，开发板无法正常启动进入系统。
 ## 事故环境

@@ -12,8 +12,8 @@ friends:
 
 * **网站名称：** 紫光的现代小窝
 * **博主名称：** 紫光_zlight106
-* **头像链接：** `https://zlight106.github.io/images/bcat.jpg`
-* **个人网址：** `https://zlight106.github.io/`
+* **头像链接：** `https://zlight106.top/images/bcat.jpg`
+* **个人网址：** `https://zlight106.top`
 * **简短描述：** 业余计算机爱好者 / 硬件 DIY / furry 
 
 *(注：如果头像加载失败，会自动显示本站的默认默认毛毛头像哦！)*

@@ -1,10 +1,12 @@
 ---
-id: 4
+layout: ../../layouts/PostLayout.astro
 title: "[ROS]部署TR-master，并且使用OCR文字识别函数识别图像中的文字"
-created_at: 2024-5-22T21:19:20Z
-modified_at: 2024-5-22T21:19:20Z
-description: 机器人操作系统学习记录
----  
+date: "2024-5-21"
+author: "zlight106"
+tags: ["ROS", "OCR","金砖大赛","智能硬件"]
+description: "本文将阐述如何将OCR安装包部署到小车内。并运行软件包自带的`demo.py`示例脚本。同时应用OCR库中的文字识别示例图片中的文字内容"
+---
+
 本文将阐述如何将OCR安装包部署到小车内。并运行软件包自带的`demo.py`示例脚本。同时应用OCR库中的文字识别示例图片中的文字内容
 ## 第一步：挂载你的小车     
 挂载的具体原理在本文中不过多阐述 ，打开终端键入以下命令即可完成挂载

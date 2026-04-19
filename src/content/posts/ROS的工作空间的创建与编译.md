@@ -1,10 +1,12 @@
 ---
-id: 2
-title: "[ROS]ROS工作空间的创建与编译"
-created_at: 2024-5-21T01:15:18Z
-modified_at: 2024-5-21T01:15:18Z
-description: 机器人操作系统学习记录
----  
+layout: ../../layouts/PostLayout.astro
+title: "[ROS]ROS工作空间的创建和编译"
+date: "2024-5-21"
+author: "zlight106"
+tags: ["ROS", "工作空间","金砖大赛","智能硬件"]
+description: "金砖大赛视觉识别小车和yolov3的学习记录"
+---
+
 本位旨在建立对ROS工作空间目录体系的认知以提升在操作其他项目的便捷性
 ## Getting started
 ### step1.打开你的终端    

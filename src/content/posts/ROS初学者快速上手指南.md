@@ -1,3 +1,12 @@
+---
+layout: ../../layouts/PostLayout.astro
+title: "[ROS]关于机器人操作系统（ROS)的初学者记录"
+date: "2024-4-15"
+author: "zlight106"
+tags: ["ROS", "OCR", "视觉识别","金砖大赛","智能硬件"]
+description: "金砖大赛视觉识别小车和ROS的初见学习记录"
+---
+
 
 （基于Ubuntu 18.04LTS）
 ### 前言   
