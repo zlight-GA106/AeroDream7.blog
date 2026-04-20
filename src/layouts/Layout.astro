@@ -138,7 +138,8 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
           <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; color: #333;">
             <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>归档总数:</span><span style="font-weight: bold; color: #1e5799;">{postCount} 篇</span></li>
             <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>站点字数:</span><span style="font-weight: bold; color: #1e5799;">{formattedWordCount} 字</span></li>
-            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>运行时间:</span><span style="font-weight: bold; color: #1e5799;">{runDays} 天</span></li>
+            {/* 👇 修改点 1：给运行时间增加 id 和 data-startdate 👇 */}
+            <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>运行时间:</span><span style="font-weight: bold; color: #1e5799;" id="site-running-days" data-startdate="2026-04-09">{runDays} 天</span></li>
             <li style="display: flex; justify-content: space-between;"><span>当前状态:</span><span style="font-weight: bold; color: #006600;">Online</span></li>
           </ul>
         </div>
@@ -242,6 +243,23 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
           
           setTimeout(() => document.body.classList.remove('is-loading'), 50);
         });
+      }
+    });
+  </script>
+
+  {/*修改点 2：在底部追加用于客户端计算运行时间的 JS 脚本*/}
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const runDaysElement = document.getElementById('site-running-days');
+      if (runDaysElement) {
+        const startDateStr = runDaysElement.getAttribute('data-startdate');
+        const startDate = new Date(startDateStr);
+        if (!isNaN(startDate.getTime())) {
+          const today = new Date();
+          const diffTime = Math.abs(today - startDate);
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          runDaysElement.innerText = diffDays + ' 天';
+        }
       }
     });
   </script>
