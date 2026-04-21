@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ================= 6. 模糊检索引擎 =================
+// ================= 6. 模糊检索引擎 =================
   const searchInput = document.getElementById('search-input');
   const searchBtn = document.getElementById('search-btn');
   const resultsContainer = document.getElementById('search-results');
@@ -132,6 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!keyword) {
         resultsContainer.style.display = 'none';
+        // 修复点：如果输入为空，强行移除页面的加载状态，打破无限打转的死循环
+        document.body.classList.remove('is-loading');
         return;
       }
 

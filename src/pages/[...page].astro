@@ -88,9 +88,9 @@ const getTagIcon = (str: string) => {
       </div>
     </div>
     <div class="window-body" style="padding: 15px;">
-      <form action="/search" method="get" class="searchbox" style="margin: 0;">
+      <form action="/search" method="get" class="searchbox" style="margin: 0;" onsubmit="document.body.classList.add('is-loading')">
         <input type="search" name="q" id="search-input" placeholder="输入文章标题或关键字..." required autocomplete="off" />
-        <button type="submit" aria-label="search" id="search-btn" onclick="document.body.classList.add('is-loading')"></button>
+        <button type="submit" aria-label="search" id="search-btn"></button>
       </form>
     </div>
   </div>

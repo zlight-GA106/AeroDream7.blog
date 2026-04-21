@@ -51,6 +51,9 @@ const searchDataObj = allPosts.map(post => ({
 
   <script define:vars={{ searchDataObj }}>
     const initSearchEngine = () => {
+      // 【关键修复 1】：无论如何，页面脚本一加载，先强制移除加载状态，破除死循环！
+      document.body.classList.remove('is-loading');
+
       const urlParams = new URLSearchParams(window.location.search);
       const query = urlParams.get('q');
       const statusText = document.getElementById('search-status-text');
@@ -63,6 +66,8 @@ const searchDataObj = allPosts.map(post => ({
           <img src="/icon/071.png" style="width: 14px; vertical-align: middle; margin-right: 5px;">
           <b>检索参数丢失：</b> 请输入有效的关键字进行查询。
         `;
+        // 【关键修复 2】：如果参数丢失提前退出，再次确保状态被清空
+        document.body.classList.remove('is-loading'); 
         return;
       }
 
@@ -181,6 +186,8 @@ const searchDataObj = allPosts.map(post => ({
           <b>系统故障：</b> 核心检索引擎在分析数据卷时崩溃。
         `;
         container.innerHTML = `<div style="color: red; font-size: 12px; padding: 10px;">Error Logs: ${error.message}</div>`;
+        // 【关键修复 3】：即使抛出异常，也要强行解除加载状态
+        document.body.classList.remove('is-loading');
       }
     };
 
