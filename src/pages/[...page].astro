@@ -88,6 +88,7 @@ const getTagIcon = (str: string) => {
       </div>
     </div>
     <div class="window-body" style="padding: 15px;">
+      {/* 👇 完美修复点：加载状态转移到 form 的 onsubmit 上 👇 */}
       <form action="/search" method="get" class="searchbox" style="margin: 0;" onsubmit="document.body.classList.add('is-loading')">
         <input type="search" name="q" id="search-input" placeholder="输入文章标题或关键字..." required autocomplete="off" />
         <button type="submit" aria-label="search" id="search-btn"></button>
@@ -134,10 +135,10 @@ const getTagIcon = (str: string) => {
             </span>
             
             {post.data.tags && post.data.tags.map((tag: string) => (
-              <span class="aero-badge">
-                <img src={`/icon/${getTagIcon(tag)}.png`} style="width: 14px; margin-right: 6px; display: block;">
-                {tag}
-              </span>
+              <a href={`/search?q=${encodeURIComponent(tag)}`} class="aero-badge" style="text-decoration: none; color: #333; cursor: pointer;" onclick="document.body.classList.add('is-loading')">
+              <img src={`/icon/${getTagIcon(tag)}.png`} style="width: 14px; margin-right: 6px; display: block;">
+              {tag}
+              </a>
             ))}
 
             {(!post.data.tags || post.data.tags.length === 0) && (

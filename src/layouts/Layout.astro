@@ -126,7 +126,7 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
           <h3 style="margin: 5px 0; color: #003366; font-family: 'Segoe UI', Tahoma;">紫光_zlight106</h3>
           <p style="font-size: 11px; color: #555; margin: 5px 0 15px 0; border-top: 1px dashed #ccc; padding-top: 8px; line-height: 1.6; text-wrap: balance; word-break: keep-all;">业余计算机爱好者 / 硬件 DIY / furry / 赛博拾荒者 / 偶尔写写小说</p>
           <div style="display: flex; gap: 8px; justify-content: center;">
-            <a href="https://github.com/zlight106" target="_blank" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">源代码</a>
+            <a href="https://github.com/zlight-GA106/AeroDream7.blog" target="_blank" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">源代码</a>
             <a href="/rss.xml" class="aero-nav-btn" style="flex: 1; padding: 4px 0; font-size: 11px;">RSS 订阅</a>
           </div>
         </div>
@@ -148,7 +148,8 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
       <div class="window glass-panel">
         <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/015.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 标签</div></div>
         <div class="window-body" style="padding: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
-          {tags.map((tag) => <a href="#" class="aero-badge" style="text-decoration: none; color: #333; font-size: 11px;">{tag as string}</a>)}
+          {/* 👇 完美修复点：将侧边栏的标签也赋予真实的搜索链接 👇 */}
+          {tags.map((tag) => <a href={`/search?q=${encodeURIComponent(tag as string)}`} class="aero-badge" style="text-decoration: none; color: #333; font-size: 11px;" onclick="document.body.classList.add('is-loading')">{tag as string}</a>)}
         </div>
       </div>
     </aside>
@@ -247,7 +248,7 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
     });
   </script>
 
-  {/*修改点 2：在底部追加用于客户端计算运行时间的 JS 脚本*/}
+  {/*用于客户端计算运行时间的 JS 脚本*/}
   <script is:inline>
     document.addEventListener('DOMContentLoaded', () => {
       const runDaysElement = document.getElementById('site-running-days');

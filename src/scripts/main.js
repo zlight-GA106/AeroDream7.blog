@@ -172,4 +172,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // ================= 7. 终极防卡死补丁 (对付全局拦截与外链) =================
+  // 防线 1：精准狙击。只要点击的是 _blank 链接，强制剥夺加载状态
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (link && link.getAttribute('target') === '_blank') {
+      // 延迟 50 毫秒执行，确保能“绝杀”覆盖掉上方第 1 步刚刚加上的状态
+      setTimeout(() => {
+        document.body.classList.remove('is-loading');
+      }, 50);
+    }
+  });
+
+  // 防线 2：绝对兜底。只要当前网页失去了焦点（比如跳去了 GitHub、打开了新软件），瞬间清空加载圈
+  window.addEventListener('blur', () => {
+    document.body.classList.remove('is-loading');
+  });
+
 });
