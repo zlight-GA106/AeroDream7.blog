@@ -6,7 +6,7 @@ const friends = frontmatter?.friends || [];
 ---
 
 <style is:global>
-  /* 友链卡片网格布局 */
+  /* ================= 友链特有卡片布局样式 (保持原样) ================= */
   .friends-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -16,7 +16,6 @@ const friends = frontmatter?.friends || [];
     border-top: 1px dashed #ccc;
   }
 
-  /* Win7 列表项拟物风格卡片 */
   .friend-card {
     display: flex;
     align-items: center;
@@ -42,7 +41,6 @@ const friends = frontmatter?.friends || [];
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
   }
 
-  /* 拍立得质感头像 */
   .friend-avatar {
     width: 48px;
     height: 48px;
@@ -55,33 +53,21 @@ const friends = frontmatter?.friends || [];
     object-fit: cover;
   }
 
-  .friend-info {
-    flex: 1;
-    overflow: hidden;
+  .friend-info { flex: 1; overflow: hidden; }
+  .friend-name { font-weight: bold; color: #003366; font-size: 14px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .friend-desc { font-size: 11px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ================= 留言板全局净化与拟物化样式重塑 ================= */
+  /* 彻底清除多余元素 */
+  #waline .wl-empty, #waline .wl-rss, #waline .wl-power, #waline .wl-meta-head, #waline .wl-actions, #waline .wl-word-count, #waline .wl-text-number, #waline .wl-close, #waline .wl-login {
+    display: none !important;
   }
 
-  .friend-name {
-    font-weight: bold;
-    color: #003366;
-    font-size: 14px;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .friend-desc {
-    font-size: 11px;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-/* ========== 留言板净化样式 (复用你之前的设定 + 隐藏登录按钮 + 暴力干掉 SVG) ========== */
-  #waline .wl-empty, #waline .wl-rss, #waline .wl-power, #waline .wl-meta-head, #waline .wl-actions, #waline .wl-word-count, #waline .wl-text-number, #waline .wl-close, #waline .wl-login { display: none !important; }
+  /* 容器重置 */
   #waline { font-family: 'Segoe UI', Tahoma, sans-serif !important; padding-left: 0 !important; }
   #waline .wl-panel { margin: 0 !important; padding: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; }
+
+  /* 输入框与编辑器 (拟物化风格) */
   #waline .wl-header { display: flex !important; gap: 8px !important; border: none !important; background: transparent !important; padding: 0 !important; margin: 0 0 10px 0 !important; align-items: stretch !important; }
   #waline .wl-header-item { flex: 1 !important; padding: 0 !important; border: none !important; }
   #waline .wl-header-item label { display: none !important; }
@@ -89,12 +75,16 @@ const friends = frontmatter?.friends || [];
   #waline .wl-editor { min-height: 100px !important; resize: vertical !important; margin: 0 !important; display: block !important; }
   #waline .wl-header-item input:hover, #waline .wl-editor:hover { border-color: #7eb4ea !important; }
   #waline .wl-header-item input:focus, #waline .wl-editor:focus { border-color: #569de5 !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1), 0 0 3px rgba(86,157,229,0.4) !important; }
+
+  /* 底部按钮区与底部信息 (拟物化风格) */
   #waline .wl-footer { margin: 10px 0 0 0 !important; padding: 0 !important; display: flex !important; justify-content: space-between !important; align-items: center !important; border: none !important; }
   #waline .wl-info { display: flex !important; gap: 8px !important; align-items: center !important; margin-left: auto !important; }
   #waline .wl-btn, #waline .wl-refresh { display: inline-flex !important; align-items: center; justify-content: center; background: linear-gradient(to bottom, #f2f2f2 0%, #ebebeb 49%, #dddddd 50%, #cfcfcf 100%) !important; border: 1px solid #707070 !important; border-radius: 3px !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8) !important; padding: 3px 15px !important; color: #333 !important; font-family: 'Segoe UI', Tahoma, sans-serif !important; font-size: 12px !important; cursor: pointer !important; min-width: 75px !important; height: 24px !important; margin: 0 !important; }
   #waline .wl-refresh { margin-right: auto !important; }
   #waline .wl-btn:hover, #waline .wl-refresh:hover { background: linear-gradient(to bottom, #eaf6fd 0%, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%) !important; border-color: #3c7fb1 !important; }
   #waline .wl-btn:active, #waline .wl-refresh:active { background: linear-gradient(to bottom, #e5f4fc 0%, #c4e5f6 49%, #98d1ef 50%, #68b3db 100%) !important; border-color: #2c628b !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.2) !important; }
+
+  /* 评论展示区 (拟物化风格) */
   #waline .wl-cards { margin-top: 25px !important; padding-top: 15px !important; border-top: 1px solid #c4d5e6 !important; }
   #waline .wl-card-item { padding: 12px 0 !important; border-bottom: 1px dashed #ccc !important; margin: 0 !important; }
   #waline .wl-card-item:last-child { border-bottom: none !important; }
@@ -103,12 +93,35 @@ const friends = frontmatter?.friends || [];
   #waline .wl-badge { background: #e4effa !important; border: 1px solid #70c0e7 !important; color: #003366 !important; border-radius: 2px !important; padding: 1px 4px !important; font-size: 10px !important; box-shadow: none !important; }
   #waline .wl-sys-badge { background: transparent !important; border: none !important; color: #888 !important; font-size: 11px !important; }
   #waline .wl-content { color: #333 !important; font-size: 13px !important; line-height: 1.6 !important; margin-top: 5px !important; padding-left: 0 !important; }
-  #waline .wl-action { display: flex !important; gap: 6px !important; align-items: center !important; margin-top: 8px !important; }
-  #waline .wl-action button { all: unset !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; box-sizing: border-box !important; min-width: 50px !important; height: 23px !important; padding: 0 8px !important; font-family: 'Segoe UI', Tahoma, sans-serif !important; font-size: 12px !important; color: #333 !important; cursor: pointer !important; background: linear-gradient(180deg, #f2f2f2 0%, #ebebeb 49%, #dddddd 50%, #cfcfcf 100%) !important; border: 1px solid #707070 !important; border-radius: 3px !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8) !important; }
-  #waline .wl-action button:hover { background: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%) !important; border-color: #3c7fb1 !important; }
-  #waline .wl-action button:active { background: linear-gradient(180deg, #e5f4fc 0%, #c4e5f6 49%, #98d1ef 50%, #68b3db 100%) !important; border-color: #2c628b !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.2) !important; }
-  
 
+  /* ================= 点赞/回复按钮 (拟物化 + 强硬 JS DOM 植入修正版) ================= */
+  #waline .wl-action, #waline .wl-comment-actions {
+    display: flex !important; gap: 8px !important; align-items: center !important; margin-top: 8px !important;
+  }
+
+  #waline .wl-like, #waline .wl-reply {
+    all: unset !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;
+    box-sizing: border-box !important; height: 24px !important; padding: 0 12px !important; 
+    cursor: pointer !important; border-radius: 3px !important; overflow: hidden !important; 
+    position: relative !important; text-decoration: none !important; 
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  }
+
+  /* 点赞按钮 (基础灰色 Aero) */
+  #waline .wl-like { background: linear-gradient(180deg, #f2f2f2 0%, #ebebeb 49%, #dddddd 50%, #cfcfcf 100%) !important; border: 1px solid #8e8f8f !important; }
+  #waline .wl-like:hover { background: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%) !important; border-color: #3c7fb1 !important; }
+
+  /* 回复按钮 (纯正蓝色 Aero) */
+  #waline .wl-reply { background: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%) !important; border: 1px solid #3c7fb1 !important; }
+  #waline .wl-reply:hover { background: linear-gradient(180deg, #cde8f9 0%, #b5dff8 49%, #92cbf1 50%, #7dbceb 100%) !important; border-color: #1e5799 !important; }
+
+  /* 终极魔法：利用物理 DOM 注入，彻底干掉原生麻烦，插入带文字和图标的拟物按钮 */
+  /* 隐藏原生所有 SVG 图标与文本框架，防止干扰 */
+  #waline .wl-like svg, #waline .wl-reply svg { display: none !important; }
+  #waline .wl-text { display: none !important; } 
+  
+  /* 调整点赞数字 */
+  #waline .wl-count { font-size: 12px !important; color: #666 !important; font-family: 'Segoe UI', Tahoma, sans-serif !important; margin-left: 2px !important; }
 </style>
 
 <Layout title={title + " | AeroDreams"} showTOC={false}>
@@ -160,10 +173,14 @@ const friends = frontmatter?.friends || [];
       init({
         el: '#waline',
         serverURL: 'https://waline.zlight106.top', 
-        search: false, emoji: false, imageUploader: false 
+        search: false, emoji: false, imageUploader: false,
+        path: '/friends', // 强制指定路径，这样友链的留言都会归档到 "/friends" 下
+        login: 'disable' // 👈 配置级彻底在底层禁用登录模块，隐藏登录按钮
       });
 
+      // 强硬手段：DOM 物理级注入 (同步 postlayout 最新防爆、状态监听版本)
       const observer = new MutationObserver(() => {
+        // 1. 顶部输入框占位符逻辑
         const nick = document.querySelector('.wl-header-item input[name="nick"]');
         const mail = document.querySelector('.wl-header-item input[name="mail"]');
         const link = document.querySelector('.wl-header-item input[name="link"]');
@@ -179,6 +196,60 @@ const friends = frontmatter?.friends || [];
           refreshBtn.innerHTML = '刷新'; 
           footerInfo.prepend(refreshBtn);
         }
+
+        // 2. 暴力植入：点赞与回复按钮物理文字图标
+        const actionBtns = document.querySelectorAll('#waline .wl-like, #waline .wl-reply');
+        actionBtns.forEach(btn => {
+          // 防止无限循环插入
+          if (!btn.dataset.aeroModded) {
+            btn.dataset.aeroModded = 'true';
+            
+            const isLike = btn.classList.contains('wl-like');
+            const isActive = btn.classList.contains('active');
+
+            // 创建原生图片标签
+            const icon = document.createElement('img');
+            icon.className = 'aero-physical-icon';
+            // 核心修复：如果图片加载失败（404），立刻隐藏这个图标，绝对不显示丑陋的边框！
+            icon.onerror = function() { this.style.display = 'none'; };
+            icon.style.cssText = 'width: 14px; height: 14px; margin-right: 4px; display: inline-block; vertical-align: middle; flex-shrink: 0; outline: none; border: none; background: transparent;';
+
+            // 创建原生文本标签
+            const text = document.createElement('span');
+            text.className = 'aero-physical-text';
+            text.style.cssText = 'font-size: 12px; margin-right: 4px; display: inline-block; vertical-align: middle; font-family: "Segoe UI", Tahoma, sans-serif;';
+
+            if (isLike) {
+              icon.src = isActive ? '/images/rheart.png' : '/images/wheart.png';
+              text.innerText = '点赞';
+              text.style.color = isActive ? '#b30000' : '#333';
+              text.style.fontWeight = isActive ? 'bold' : 'normal';
+              if(isActive) btn.querySelector('.wl-count').style.color = '#b30000';
+            } else {
+              icon.src = '/images/guestbook.png';
+              text.innerText = '回复';
+              text.style.color = '#333';
+            }
+
+            // 物理插入按钮最前面
+            btn.prepend(text);
+            btn.prepend(icon);
+          } else {
+            // 动态监听点赞按钮的状态变化（红心/灰心切换，文字同步变红加粗）
+            if (btn.classList.contains('wl-like')) {
+              const isActive = btn.classList.contains('active');
+              const icon = btn.querySelector('.aero-physical-icon');
+              const text = btn.querySelector('.aero-physical-text');
+              const count = btn.querySelector('.wl-count');
+              if (icon && text) {
+                icon.src = isActive ? '/images/rheart.png' : '/images/wheart.png';
+                text.style.color = isActive ? '#b30000' : '#333';
+                text.style.fontWeight = isActive ? 'bold' : 'normal';
+                if(count) count.style.color = isActive ? '#b30000' : '#666';
+              }
+            }
+          }
+        });
       });
       observer.observe(document.getElementById('waline'), { childList: true, subtree: true });
     });
