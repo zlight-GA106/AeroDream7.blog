@@ -40,10 +40,6 @@ const navItems = [
   { path: '/guestbook', icon: '014.png', label: '留言板', mobileLabel: '留言' }
 ];
 
-// 自动扫描 wallpaper 文件夹下的所有主流图片格式
-const wallpaperFiles = import.meta.glob('/public/images/wallpaper/*.{jpg,jpeg,png,webp}');
-// 将 /public 路径去掉，转换为浏览器可以访问的绝对路径数组
-const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => path.replace('/public', '')));
 ---
 
 <!DOCTYPE html>
@@ -138,7 +134,6 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
           <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; color: #333;">
             <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>归档总数:</span><span style="font-weight: bold; color: #1e5799;">{postCount} 篇</span></li>
             <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>站点字数:</span><span style="font-weight: bold; color: #1e5799;">{formattedWordCount} 字</span></li>
-            {/* 👇 修改点 1：给运行时间增加 id 和 data-startdate 👇 */}
             <li style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted rgba(0,0,0,0.1); padding-bottom: 4px;"><span>运行时间:</span><span style="font-weight: bold; color: #1e5799;" id="site-running-days" data-startdate="2026-04-09">{runDays} 天</span></li>
             <li style="display: flex; justify-content: space-between;"><span>当前状态:</span><span style="font-weight: bold; color: #006600;">Online</span></li>
           </ul>
@@ -148,7 +143,6 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
       <div class="window glass-panel">
         <div class="title-bar aero-title-bar"><div class="title-bar-text"><img src="/icon/015.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 标签</div></div>
         <div class="window-body" style="padding: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
-          {/* 👇 完美修复点：将侧边栏的标签也赋予真实的搜索链接 👇 */}
           {tags.map((tag) => <a href={`/search?q=${encodeURIComponent(tag as string)}`} class="aero-badge" style="text-decoration: none; color: #333; font-size: 11px;" onclick="document.body.classList.add('is-loading')">{tag as string}</a>)}
         </div>
       </div>
@@ -187,9 +181,9 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
             </a>
           ))}
           
-          <a class="aero-nav-btn" id="btn-random-wallpaper" data-wallpapers={wallpaperPaths} style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 6px; margin-top: 4px; cursor: pointer;">
+          <a class="aero-nav-btn" id="btn-random-wallpaper" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 6px; margin-top: 4px; cursor: pointer;">
             <img src="/icon/006.png" style="width: 14px; margin: 0; padding: 0;">
-            <span>随机挑一张壁纸</span>
+            <span>随机挑选一张壁纸</span>
           </a>
           
         </div>
@@ -225,24 +219,37 @@ const wallpaperPaths = JSON.stringify(Object.keys(wallpaperFiles).map(path => pa
     document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById('btn-random-wallpaper');
       if (btn) {
-        const wallpapers = JSON.parse(btn.dataset.wallpapers);
-        
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          document.body.classList.remove('is-loading');
 
-          if (wallpapers.length === 0) {
-            alert("壁纸库为空！请确认图片已经放进 /public/images/wallpaper 目录。");
-            return;
-          }
+          // 开启系统级加载动画（鼠标转圈）
+          document.body.classList.add('is-loading');
+
+          // 【核心魔法】调用必应 API 获取 UHD 超高清历史壁纸
+          // 附加时间戳 (?t=xxx) 破解浏览器缓存策略，确保每次都获得新图
+          const bingApiUrl = `https://bing.img.run/rand_uhd.php?t=${new Date().getTime()}`;
+
+          // 使用 Image 对象在内存中预加载壁纸，防止背景切换时闪烁黑屏
+          const tempImg = new Image();
           
-          const randomBg = wallpapers[Math.floor(Math.random() * wallpapers.length)];
-          
-          document.documentElement.style.setProperty('--aero-bg', `url('${randomBg}')`);
-          sessionStorage.setItem('aero_current_bg', randomBg);
-          
-          setTimeout(() => document.body.classList.remove('is-loading'), 50);
+          tempImg.onload = () => {
+            // 加载完成后，再平滑切换实际的 CSS 背景
+            document.documentElement.style.setProperty('--aero-bg', `url('${bingApiUrl}')`);
+            sessionStorage.setItem('aero_current_bg', bingApiUrl);
+            
+            // 解除鼠标转圈状态
+            setTimeout(() => document.body.classList.remove('is-loading'), 50);
+          };
+
+          tempImg.onerror = () => {
+            // 如果 API 挂了或网络不好，弹出提示并解除加载状态
+            alert("请求必应壁纸失败，请检查网络连接！");
+            document.body.classList.remove('is-loading');
+          };
+
+          // 触发网络请求
+          tempImg.src = bingApiUrl;
         });
       }
     });
