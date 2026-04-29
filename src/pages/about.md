@@ -26,12 +26,12 @@ date: 2026-04-15
 ### 爱好
 * **赛博拾荒**：~~（呃，冒昧的问一下群里有多余瓶子吗？）~~  常年混迹于咸鱼，资深垃圾佬一枚，热衷于捡各种稀奇古怪的电子垃圾。
 * **上古硬件**：有时候折腾大把上古时期的老货,因为折腾十几年前的旧式电子产品而在某些时候背负了莫名其妙的技术债（
-* **业余计算机爱好者**：~~ 我是业余，大佬求邦邦 ~~
+* **业余计算机爱好者**：~~我是业余，大佬求邦邦~~
 * **模拟驾驶和模拟经营/自动化类游戏**
 
 ### 维护的项目   
 * [AeroDream7.blog](https://github.com/zlight-GA106/AeroDream7.blog)：本站使用的博客主题，使用了AreoGlass风格和[7.css](https://khang-nd.github.io/7.css/)来达到仿win7的视觉效果    
-* [StupidBot](https://github.com/YunMo612/Stupid_bot)：一个基于[Napcat](https://napneko.github.io/guide/napcat)和[NoneBot](https://nonebot.dev/docs/)的QQ群机器人，支持LLM接入~~(虽然自己好像在这个项目中是个凑管服务器的)~~        
+* [StupidBot](https://github.com/YunMo612/Stupid_bot)：一个基于[Napcat](https://napneko.github.io/guide/napcat)和[NoneBot](https://nonebot.dev/docs/)的QQ群机器人，支持LLM接入（~~虽然自己好像在这个项目中是个凑管服务器的~~）    
 
 ### 常用设备   
 * 💻：Custom Desktop PC（Intel Core i3-10105F with NVIDIA GeForce RTX 3060 12GB）
@@ -45,6 +45,9 @@ date: 2026-04-15
   - Supermicro X11-SSH-F (with Intel Xeon E3-1270 v6)
   - HP 800G1 USDT (with Intel Core i5-4590)
   - ~~Lenovo ThinkStation P920 Workstation (with Dual Intel Xeon Platinum 8160)~~
+- IKVM/BMC
+  - OneCloud IKVM
+  - SuperMicro IPMI
 - **Remote Desktop:**
   - HP 800G1 USDT (with Intel Core i3-4130)
 - **Network:**
