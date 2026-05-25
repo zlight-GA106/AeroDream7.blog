@@ -16,9 +16,14 @@ const postsCollection = defineCollection({
     // 防弹标签：不管你写的是字符串 tags: ROS，还是数组 tags: ["ROS"]，都能智能处理
     tags: z.any().transform(val => {
       if (Array.isArray(val)) return val.map(String);
-      if (typeof val === 'string') return [val];
+      if (typeof val === 'string') return [val]; 
       return ['未分类'];
     }).catch(['未分类']),
+
+    //  核心修复：把警告字段移到 tags 外面，和 title、date 成为平级的属性 👇
+    aigc: z.boolean().optional(),
+    security: z.boolean().optional(),
+    discomfort: z.boolean().optional(),
   }),
 });
 
