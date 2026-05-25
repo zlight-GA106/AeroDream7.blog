@@ -175,32 +175,32 @@ const showDiscomfort = isTrue(frontmatter?.discomfort);
     <div class="window-body article-body" style="padding: 20px;">
       <div style="color: #666; font-size: 11px; margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">创建时间: {pubDateString}</div>
 
+      {/* 👇 核心修复：外层去掉了行高，行高专供内层 div，并恢复紧凑 padding 👇 */}
       {showWarning && (
-        <div style="background: linear-gradient(to bottom, #ffffe9 0%, #fffdc9 100%); border: 1px solid #dfc778; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
-          <img src="/icon/079.png" style="width: 16px; margin-right: 8px;" alt="warning">
-          <div><strong>时效性提示：</strong>本文写于 <strong id="dynamic-days" data-date={pubDateString}>{diffDays}</strong> 天前。文中的配置或技术可能已发生变化，请注意甄别。</div>
+        <div style="background: linear-gradient(to bottom, #ffffe9 0%, #fffdc9 100%); border: 1px solid #dfc778; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: flex-start; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
+          <img src="/icon/176.png" style="width: 16px; height: 16px; flex-shrink: 0; margin-right: 8px; margin-top: 1px;" alt="warning">
+          <div style="flex: 1; line-height: 1.5;"><strong>时效性提示：</strong>本文写于 <strong id="dynamic-days" data-date={pubDateString}>{diffDays}</strong> 天前。文中的配置或技术可能已发生变化，请注意甄别。</div>
         </div>
       )}
 
-      {/* 👇 纯正 Win7 拟物风：零 Emoji，纯本地图片注入 👇 */}
       {showAIGC && (
-        <div style="background: linear-gradient(to bottom, #f4fcf6 0%, #dcf4e5 100%); border: 1px solid #8cd19e; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
-          <img src="/icon/069.png" style="width: 16px; margin-right: 8px;" alt="aigc">
-          <div><strong style="color: #2e8b57;">AIGC 声明：</strong>本文部分或全部内容由 AI 辅助生成，请注意甄别。</div>
+        <div style="background: linear-gradient(to bottom, #f4fcf6 0%, #dcf4e5 100%); border: 1px solid #8cd19e; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: flex-start; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
+          <img src="/icon/176.png" style="width: 16px; height: 16px; flex-shrink: 0; margin-right: 8px; margin-top: 1px;" alt="aigc">
+          <div style="flex: 1; line-height: 1.5;"><strong style="color: #2e8b57;">AIGC 声明：</strong>本文部分或全部内容由 AI 辅助生成，请注意甄别。</div>
         </div>
       )}
 
       {showSecurity && (
-        <div style="background: linear-gradient(to bottom, #fff2f2 0%, #ffe5e5 100%); border: 1px solid #f4a8a8; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
-          <img src="/icon/094.png" style="width: 16px; margin-right: 8px;" alt="security">
-          <div><strong style="color: #c0392b;">安全性警告：</strong>本文涉及高风险操作（如系统底层修改或敏感数据处理），请务必在充分理解后果并在测试环境下进行操作！</div>
+        <div style="background: linear-gradient(to bottom, #fff2f2 0%, #ffe5e5 100%); border: 1px solid #f4a8a8; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: flex-start; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
+          <img src="/icon/176.png" style="width: 16px; height: 16px; flex-shrink: 0; margin-right: 8px; margin-top: 1px;" alt="security">
+          <div style="flex: 1; line-height: 1.5;"><strong style="color: #c0392b;">安全性警告：</strong>本文涉及高风险操作（如系统底层修改或敏感数据处理），请务必在充分理解后果并在测试环境下进行操作！</div>
         </div>
       )}
 
       {showDiscomfort && (
-        <div style="background: linear-gradient(to bottom, #f2f8fe 0%, #dcf0fa 100%); border: 1px solid #a6cbe7; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
-          <img src="/icon/077.png" style="width: 16px; margin-right: 8px;" alt="info">
-          <div><strong style="color: #2980b9;">内容提示：</strong>本文可能包含引起部分读者生理或心理不适的内容描写，请酌情选择是否继续阅读。</div>
+        <div style="background: linear-gradient(to bottom, #f2f8fe 0%, #dcf0fa 100%); border: 1px solid #a6cbe7; border-radius: 3px; padding: 8px 10px; margin-bottom: 20px; font-size: 12px; color: #555; display: flex; align-items: flex-start; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(0,0,0,0.05);">
+          <img src="/icon/176.png" style="width: 16px; height: 16px; flex-shrink: 0; margin-right: 8px; margin-top: 1px;" alt="info">
+          <div style="flex: 1; line-height: 1.5;"><strong style="color: #2980b9;">内容提示：</strong>本文可能包含引起部分读者生理或心理不适的内容描写，请酌情选择是否继续阅读。</div>
         </div>
       )}
 
@@ -244,9 +244,7 @@ const showDiscomfort = isTrue(frontmatter?.discomfort);
       search: false, emoji: false, imageUploader: false, login: 'disable'
     });
 
-    // 强硬手段：DOM 物理级注入
     const observer = new MutationObserver(() => {
-      // 1. 顶部输入框逻辑
       const nick = document.querySelector('.wl-header-item input[name="nick"]');
       const mail = document.querySelector('.wl-header-item input[name="mail"]');
       const link = document.querySelector('.wl-header-item input[name="link"]');
@@ -263,23 +261,19 @@ const showDiscomfort = isTrue(frontmatter?.discomfort);
         footerInfo.prepend(refreshBtn);
       }
 
-      // 2. 暴力植入：点赞与回复按钮文字图标
       const actionBtns = document.querySelectorAll('#waline .wl-like, #waline .wl-reply');
       actionBtns.forEach(btn => {
-        // 防止无限循环插入
         if (!btn.dataset.aeroModded) {
           btn.dataset.aeroModded = 'true';
           
           const isLike = btn.classList.contains('wl-like');
           const isActive = btn.classList.contains('active');
 
-          // 创建原生图片标签
           const icon = document.createElement('img');
           icon.className = 'aero-physical-icon';
           icon.onerror = function() { this.style.display = 'none'; };
           icon.style.cssText = 'width: 14px; height: 14px; margin-right: 4px; display: inline-block; vertical-align: middle; flex-shrink: 0; outline: none; border: none; background: transparent;';
 
-          // 创建原生文本标签
           const text = document.createElement('span');
           text.className = 'aero-physical-text';
           text.style.cssText = 'font-size: 12px; margin-right: 4px; display: inline-block; vertical-align: middle; font-family: "Segoe UI", Tahoma, sans-serif;';
@@ -302,7 +296,6 @@ const showDiscomfort = isTrue(frontmatter?.discomfort);
           btn.prepend(text);
           btn.prepend(icon);
         } else {
-          // 动态监听点赞按钮的状态变化
           if (btn.classList.contains('wl-like')) {
             const isActive = btn.classList.contains('active');
             const icon = btn.querySelector('.aero-physical-icon');

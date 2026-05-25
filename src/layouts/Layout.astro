@@ -39,7 +39,6 @@ const navItems = [
   { path: '/friends', icon: '075.png', label: '友情链接', mobileLabel: '友链' },
   { path: '/guestbook', icon: '014.png', label: '留言板', mobileLabel: '留言' }
 ];
-
 ---
 
 <!DOCTYPE html>
@@ -152,8 +151,17 @@ const navItems = [
       <slot />
 
       <footer style="margin-top: 60px; padding: 20px; background: linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(255,255,255,0.2)); border: 1px solid rgba(255,255,255,0.7); border-top: 1px solid #c4d5e6; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 2px 5px rgba(0,0,0,0.05); color: #555; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-shadow: 0 1px 0 #fff;">
-        <div style="display: flex; align-items: center; justify-content: center;"><span>&copy; 2024-2026 <b>紫光_zlight106</b> 版权所有</span></div>
-        <div style="display: flex; align-items: center; justify-content: center;"><span>编写并使用了 <a href="/" style="color: #1e5799; font-weight: bold; font-family: 'Segoe UI', Tahoma, sans-serif; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">AeroDream7</a> 主题</span></div>
+        
+        <div style="display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', Tahoma, sans-serif;">
+          <span>Copyright &copy; 2024-2026 <b>紫光_zlight106</b>. All rights reserved.</span>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; font-family: 'Segoe UI', Tahoma, sans-serif;">
+          <span>编写并使用了主题 <a href="/" style="color: #1e5799; font-weight: bold; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">AeroDream7</a></span>
+          <span style="color: #999; margin: 0 4px;">|</span>
+          <span>Powered by <a href="https://astro.js.cn/" target="_blank" style="color: #1e5799; font-weight: bold; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">Astro</a> & <a href="https://khang-nd.github.io/7.css/" target="_blank" style="color: #1e5799; font-weight: bold; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">7.css</a></span>
+        </div>
+
       </footer>
     </main>
 
