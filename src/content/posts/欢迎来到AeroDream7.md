@@ -1,14 +1,15 @@
 ---
 layout: ../../layouts/PostLayout.astro
-title: "[测试] 汉斯维尔的暗巷"
+title: "[测试] 欢迎来到AeroDream7"
 date: "2026-05-25"
 author: "zlight106"
-tags: ["小说", "测试"]
-description: "用于测试所有警告框渲染效果的简短小说片段。"
+tags: ["测试"]
+description: "用于测试所有警告框渲染效果的文章。"
 aigc: true
 security: true
 discomfort: true
 ---
+## 欢迎使用AeroDream7 on Astro，我们将在这里测试文章布局与全新特性
 
 机械臂的齿轮发出令人牙酸的摩擦声。黑木咬着牙，将那根带着机油和暗红色不明液体的粗糙探针，径直插入了一个电源板中。
 
