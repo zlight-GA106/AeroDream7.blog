@@ -157,7 +157,7 @@ const navItems = [
         </div>
 
         <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; font-family: 'Segoe UI', Tahoma, sans-serif;">
-          <span>编写并使用了主题 <a href="/" style="color: #1e5799; font-weight: bold; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">AeroDream7</a></span>
+          <span>Theme <a href="/" style="color: #1e5799; font-weight: bold; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">AeroDream7</a></span>
           <span style="color: #999; margin: 0 4px;">|</span>
           <span>Powered by <a href="https://astro.js.cn/" target="_blank" style="color: #1e5799; font-weight: bold; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">Astro</a> & <a href="https://khang-nd.github.io/7.css/" target="_blank" style="color: #1e5799; font-weight: bold; text-decoration: none; border-bottom: 1px dashed transparent; transition: all 0.2s;" onmouseover="this.style.borderBottom='1px dashed #1e5799'" onmouseout="this.style.borderBottom='1px dashed transparent'">7.css</a></span>
         </div>
@@ -231,41 +231,32 @@ const navItems = [
           e.preventDefault();
           e.stopPropagation();
 
-          // 开启系统级加载动画（鼠标转圈）
           document.body.classList.add('is-loading');
 
-          // 【核心魔法】调用必应 API 获取 UHD 超高清历史壁纸
-          // 附加时间戳 (?t=xxx) 破解浏览器缓存策略，确保每次都获得新图
           const bingApiUrl = `https://bing.img.run/rand_uhd.php?t=${new Date().getTime()}`;
-
-          // 使用 Image 对象在内存中预加载壁纸，防止背景切换时闪烁黑屏
           const tempImg = new Image();
           
           tempImg.onload = () => {
-            // 加载完成后，再平滑切换实际的 CSS 背景
             document.documentElement.style.setProperty('--aero-bg', `url('${bingApiUrl}')`);
             sessionStorage.setItem('aero_current_bg', bingApiUrl);
-            
-            // 解除鼠标转圈状态
             setTimeout(() => document.body.classList.remove('is-loading'), 50);
           };
 
           tempImg.onerror = () => {
-            // 如果 API 挂了或网络不好，弹出提示并解除加载状态
             alert("请求必应壁纸失败，请检查网络连接！");
             document.body.classList.remove('is-loading');
           };
 
-          // 触发网络请求
           tempImg.src = bingApiUrl;
         });
       }
     });
   </script>
 
-  {/*用于客户端计算运行时间的 JS 脚本*/}
+  {/*用于客户端计算运行时间的 JS 脚本及窗口控件全局拦截*/}
   <script is:inline>
     document.addEventListener('DOMContentLoaded', () => {
+      // 1. 运行时间统计
       const runDaysElement = document.getElementById('site-running-days');
       if (runDaysElement) {
         const startDateStr = runDaysElement.getAttribute('data-startdate');
@@ -277,6 +268,37 @@ const navItems = [
           runDaysElement.innerText = diffDays + ' 天';
         }
       }
+
+      // 2. 窗口控制按钮全局劫持 (最大化->全屏，关闭->回首页)
+      const maximizeBtns = document.querySelectorAll('button[aria-label="Maximize"]');
+      maximizeBtns.forEach(btn => {
+        btn.style.cursor = 'pointer';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+              console.warn('全屏请求被拒绝:', err);
+            });
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            }
+          }
+        });
+      });
+
+      const closeBtns = document.querySelectorAll('button[aria-label="Close"]');
+      closeBtns.forEach(btn => {
+        btn.style.cursor = 'pointer';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          // 如果不在首页，则跳转到首页
+          if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+            document.body.classList.add('is-loading'); // 触发系统的鼠标漏斗
+            window.location.href = '/';
+          }
+        });
+      });
     });
   </script>
 </body>
