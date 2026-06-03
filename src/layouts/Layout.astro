@@ -73,6 +73,12 @@ const navItems = [
     .main-content { flex: 1; min-width: 0; }
     .mobile-top-nav { display: none; }
 
+    /* 宽屏幕模式下的隐藏两侧栏样式规则 */
+    #aero-workspace.is-widescreen .sidebar-left,
+    #aero-workspace.is-widescreen .sidebar-right {
+      display: none !important;
+    }
+
     @media (max-width: 950px) {
       body { padding-top: 50px; }
       #aero-workspace { flex-direction: column; padding: 10px; gap: 15px; }
@@ -109,7 +115,7 @@ const navItems = [
     </div>
   </nav>
 
-  <div id="aero-workspace">
+  <div id="aero-workspace" data-is-post={showTOC || currentPath.includes('/posts') ? 'true' : 'false'}>
     
     <aside class="sidebar-left" style="display: flex; flex-direction: column; gap: 20px;">
       <div class="window glass-panel">
@@ -176,9 +182,10 @@ const navItems = [
       <div class="window glass-panel" style="flex-shrink: 0;">
         <div class="title-bar aero-title-bar">
           <div class="title-bar-text"><img src="/icon/290.png" style="width: 14px; margin-right: 4px; vertical-align: middle;"> 站点索引</div>
+          {/* 👇 核心修复：彻底消灭了“折叠索引”和“展开索引”控制键中的旧硬编码内联事件 👇 */}
           <div class="title-bar-controls">
-            <button aria-label="Minimize" title="折叠索引" onclick="document.getElementById('site-index-body').style.display='none'"></button>
-            <button aria-label="Maximize" title="展开索引" onclick="document.getElementById('site-index-body').style.display='flex'"></button>
+            <button aria-label="Minimize" title="折叠窗口"></button>
+            <button aria-label="Maximize" title="最大化窗口"></button>
           </div>
         </div>
         <div id="site-index-body" class="window-body" style={`display: ${showTOC ? 'none' : 'flex'}; flex-direction: column; gap: 8px; padding: 15px;`}>
@@ -269,12 +276,59 @@ const navItems = [
         }
       }
 
-      // 2. 窗口控制按钮全局劫持 (最大化->全屏，关闭->回首页)
+      // 2. 窗口控制按钮高级交互劫持
+      
+      // A. 最小化按钮激活 -> WindowShade 卷帘门逻辑
+      const minimizeBtns = document.querySelectorAll('button[aria-label="Minimize"]');
+      minimizeBtns.forEach(btn => {
+        btn.removeAttribute('disabled'); 
+        btn.style.cursor = 'pointer';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const win = btn.closest('.window');
+          if (win) {
+            const body = win.querySelector('.window-body');
+            if (body) {
+              if (body.style.display !== 'none') {
+                body.style.display = 'none';
+                win.classList.add('is-window-shaded');
+              } else {
+                body.style.display = '';
+                win.classList.remove('is-window-shaded');
+              }
+            }
+          }
+        });
+      });
+
+      // B. 最大化按钮控制 -> 恢复 / 宽屏 / F11级全屏三合一控制
       const maximizeBtns = document.querySelectorAll('button[aria-label="Maximize"]');
       maximizeBtns.forEach(btn => {
         btn.style.cursor = 'pointer';
         btn.addEventListener('click', (e) => {
           e.preventDefault();
+          e.stopPropagation();
+          const win = btn.closest('.window');
+          
+          // 条件一：如果窗口正处于卷帘门状态，点击最大化则将其恢复原样
+          if (win && win.classList.contains('is-window-shaded')) {
+            const body = win.querySelector('.window-body');
+            if (body) {
+              body.style.display = '';
+              win.classList.remove('is-window-shaded');
+            }
+            return;
+          }
+
+          // 条件二：如果在文章详细页面，点击最大化则切入/退出宽屏幕专注模式
+          const workspace = document.getElementById('aero-workspace');
+          if (workspace && workspace.dataset.isPost === 'true') {
+            workspace.classList.toggle('is-widescreen');
+            return;
+          }
+
+          // 条件三：在普通页面（如主页）点击，清除一切老硬编码干扰，触发真正的原生浏览器 F11 级全屏
           if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => {
               console.warn('全屏请求被拒绝:', err);
@@ -287,14 +341,15 @@ const navItems = [
         });
       });
 
+      // C. 关闭按钮控制 -> 退回首页
       const closeBtns = document.querySelectorAll('button[aria-label="Close"]');
       closeBtns.forEach(btn => {
         btn.style.cursor = 'pointer';
         btn.addEventListener('click', (e) => {
           e.preventDefault();
-          // 如果不在首页，则跳转到首页
+          e.stopPropagation();
           if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
-            document.body.classList.add('is-loading'); // 触发系统的鼠标漏斗
+            document.body.classList.add('is-loading'); 
             window.location.href = '/';
           }
         });
